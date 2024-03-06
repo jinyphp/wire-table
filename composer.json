@@ -1,0 +1,37 @@
+{
+    "name": "jiny/wiretable",
+    "description": "livewire with data-tabel controller",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "hojinlee",
+            "email": "infohojin@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "php": "^8.0.2",
+        "livewire/livewire": "^2.12"
+    },
+    "autoload": {
+        "psr-4": {
+            "Jiny\\WireTable\\":"src/"
+        },
+        "files" : [
+            "src/Helpers/Helper.php"
+        ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Jiny\\WireTable\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Jiny\\WireTable\\JinyWireTableServiceProvider"
+            ]
+        }
+    }
+}
