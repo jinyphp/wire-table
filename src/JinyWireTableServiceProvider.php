@@ -20,8 +20,29 @@ class JinyWireTableServiceProvider extends ServiceProvider
         $this->loadRoutesFrom(__DIR__.'/../routes/web.php');
         $this->loadViewsFrom(__DIR__.'/../resources/views', $this->package);
 
-        // Blade::component($this->package.'::components.'.'loading-indicator', 'loading-indicator');
 
+        // 화면 UI
+        Blade::component($this->package.'::components.'.'wire-table', 'wire-table');
+        Blade::component($this->package.'::components.'.'wire-thead', 'wire-thead');
+        //Blade::component($this->package.'::components.'.'wire-tbody', 'wire-tbody');
+        Blade::component(\Jiny\WireTable\View\Components\WireTbody::class, "wire-tbody");
+        Blade::component(\Jiny\WireTable\View\Components\WireTbodyItem::class, "wire-tbody-item");
+        Blade::component(\Jiny\WireTable\View\Components\WireTableTh::class, "wire-th");
+
+
+        // 팝업 Dialog
+        //Blade::component($this->package.'::components.'.'dialog-modal', 'wire-dialog-modal');
+        //Blade::component($this->package.'::components.'.'modal', 'wire-modal');
+        Blade::component($this->package.'::components.'.'dialog-modal', 'wire-dialog-modal');
+        Blade::component($this->package.'::components.'.'modal', 'wire-modal');
+
+        // javascript emit 버튼
+        Blade::component($this->package.'::components.'.'wire.create', 'btn-wireCreate');
+        Blade::component($this->package.'::components.'.'wire.manual', 'btn-wireManual');
+
+        // 라이브와이어 동작을 표시하기 위한 인디케이터
+        Blade::component($this->package.'::components.'.'loading-indicator', 'loading-indicator');
+        Blade::component($this->package.'::components.'.'upload-indicator', 'upload-indicator');
 
     }
 
@@ -29,6 +50,11 @@ class JinyWireTableServiceProvider extends ServiceProvider
     {
         /* 라이브와이어 컴포넌트 등록 */
         $this->app->afterResolving(BladeCompiler::class, function () {
+            Livewire::component('WireTable', \Jiny\WireTable\Http\Livewire\WireTable::class);
+            // 팝업 form
+            Livewire::component('WirePopupForm', \Jiny\WireTable\Http\Livewire\WirePopupForm::class);
+            //Livewire::component('PopupForm', \Jiny\Table\Http\Livewire\PopupForm::class); // 팝업형
+
 
         });
     }
