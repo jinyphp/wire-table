@@ -1,5 +1,5 @@
 <div>
-    <x-table-loading-indicator/>
+    <x-loading-indicator/>
 
     <div class="card">
         <div class="card-body">
@@ -98,9 +98,9 @@
 
 
     {{-- 선택삭제 --}}
-    @include("jinytable::popup.delete")
+    @include("jiny-wire-table::popup.delete")
 
     {{-- 퍼미션 알람--}}
-    @include("jinytable::error.popup.permit")
+    @include("jiny-wire-table::error.popup.permit")
 
 </div>

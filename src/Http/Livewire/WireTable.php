@@ -103,7 +103,7 @@ class WireTable extends Component
                 $rows = $controller->HookIndexed($this, $rows);
 
                 if(is_null($rows)) {
-                    return view("jinytable::error.message",[
+                    return view("jiny-wire-table::error.message",[
                         'message'=>"HookIndexed() 호출 반환값이 없습니다."
                     ]);
                 }
@@ -134,7 +134,7 @@ class WireTable extends Component
         $rules = $this->actions;
         $funcEditLink = function ($item, $title) use ($rules)
         {
-            $link = xLink($title)->setHref(route($rules['routename'].".edit", $item->id));
+            $link = ($title)->setHref(route($rules['routename'].".edit", $item->id));
             if($item->enable) {
                 return $link;
             } else {

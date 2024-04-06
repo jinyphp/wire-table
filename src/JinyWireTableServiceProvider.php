@@ -35,6 +35,10 @@ class JinyWireTableServiceProvider extends ServiceProvider
         //Blade::component($this->package.'::components.'.'modal', 'wire-modal');
         Blade::component($this->package.'::components.'.'dialog-modal', 'wire-dialog-modal');
         Blade::component($this->package.'::components.'.'modal', 'wire-modal');
+        // 팝업 Dialog
+        Blade::component($this->package.'::components.'.'dialog-modal', 'table-dialog-modal');
+        Blade::component($this->package.'::components.'.'modal', 'table-modal');
+
 
         // javascript emit 버튼
         Blade::component($this->package.'::components.'.'wire.create', 'btn-wireCreate');

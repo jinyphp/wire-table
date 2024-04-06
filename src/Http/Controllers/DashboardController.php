@@ -65,10 +65,10 @@ class DashboardController extends BaseController
                 {
                     $view = $this->actions['view']['main'];
                 } else {
-                    $view = "jinytable::dashboard.main";
+                    $view = "jiny-wire-table::dashboard.main";
                 }
             } else {
-                $view = "jinytable::dashboard.main";
+                $view = "jiny-wire-table::dashboard.main";
             }
 
             return view($view,[
@@ -80,7 +80,7 @@ class DashboardController extends BaseController
 
 
         // 권한 접속 실패
-        return view("jinytable::error.permit",[
+        return view("jiny-wire-table::error.permit",[
             'actions'=>$this->actions,
             'request'=>$request
         ]);

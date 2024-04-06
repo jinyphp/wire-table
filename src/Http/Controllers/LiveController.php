@@ -14,7 +14,7 @@ class LiveController extends BaseController
 {
     private $packageName = "jiny-wire-table";
     use \Jiny\WireTable\Http\Trait\Permit;
-    use \Jiny\Table\Http\Controllers\SetMenu;
+    //use \Jiny\Table\Http\Controllers\SetMenu;
 
     // 2단계 nested table data
     //protected $nested_id;
@@ -23,11 +23,7 @@ class LiveController extends BaseController
     public function __construct()
     {
         parent::__construct();
-        setTheme("admin.sidebar");
     }
-
-
-
 
 
     /**
@@ -44,19 +40,30 @@ class LiveController extends BaseController
      */
     public function index(Request $request)
     {
+        // IP확인
         $ipAddress = $request->ip();
         $this->actions['request']['ip'] = $ipAddress;
 
-        // request에서 값을 분석합니다.
+        // request로 전달되는 uri 파라미터값을 분석합니다.
         $this->checkRequestNesteds($request);
 
-        // 쿼리스트링을 확인합니다.
+        // request로 전달되는 uri 쿼리스트링을 확인합니다.
         $this->checkRequestQuery($request);
+
+
+        // 테마확인
+        if(isset($this->actions['theme'])) {
+            if($this->actions['theme']) {
+                if(function_exists("setTheme")) {
+                    setTheme($this->actions['theme']);
+                }
+            }
+        }
 
         // 로그인: 사용자 메뉴 설정
         $user = Auth::user();
         if($user) {
-            $this->setUserMenu($user);
+            //$this->setUserMenu($user);
         }
 
         // 권한
@@ -96,10 +103,17 @@ class LiveController extends BaseController
 
 
         // 권한 접속 실패
-        return view("jinytable::error.permit",[
+        return view("jiny-wire-table::error.permit",[
             'actions'=>$this->actions,
             'request'=>$request
         ]);
+    }
+
+    // 컨트롤러에 테마를 설정합니다.
+    protected function setTheme($name)
+    {
+        $this->actions['theme'] = $name;
+        return $this;
     }
 
     // Request에서 전달된 query 스트링값을 저장합니다.
@@ -160,7 +174,7 @@ class LiveController extends BaseController
         }
 
         // 권한 접속 실패
-        return view("jinytable::error.permit",[
+        return view("jiny-wire-table::error.permit",[
             'actions'=>$this->actions,
             'request'=>$request
         ]);
@@ -183,7 +197,7 @@ class LiveController extends BaseController
             if (isset($this->actions['view']['edit'])) {
                 $view = $this->actions['view']['edit'];
             } else {
-                $view = "jinytable::edit";
+                $view = "jiny-wire-table::edit";
             }
 
             return view($view,[
@@ -192,7 +206,7 @@ class LiveController extends BaseController
         }
 
         // 권한 접속 실패
-        return view("jinytable::error.permit",[
+        return view("jiny-wire-table::error.permit",[
             'actions'=>$this->actions,
             'request'=>$request
         ]);
@@ -211,7 +225,7 @@ class LiveController extends BaseController
         }
 
         // 권한 접속 실패
-        return view("jinytable::error.permit",[
+        return view("jiny-wire-table::error.permit",[
             'actions'=>$this->actions,
             'request'=>$request
         ]);
@@ -234,11 +248,11 @@ class LiveController extends BaseController
             $keyId = array_key_last($this->actions['nesteds']);
             $this->actions['id'] = $this->actions['nesteds'][$keyId];
 
-            return view("jinytable::edit",['actions'=>$this->actions]);
+            return view("jjiny-wire-table::edit",['actions'=>$this->actions]);
         }
 
         // 권한 접속 실패
-        return view("jinytable::error.permit",[
+        return view("jiny-wire-table::error.permit",[
             'actions'=>$this->actions,
             'request'=>$request
         ]);
@@ -257,7 +271,7 @@ class LiveController extends BaseController
         }
 
         // 권한 접속 실패
-        return view("jinytable::error.permit",[
+        return view("jiny-wire-table::error.permit",[
             'actions'=>$this->actions,
             'request'=>$request
         ]);
@@ -277,7 +291,7 @@ class LiveController extends BaseController
         }
 
         // 권한 접속 실패
-        return view("jinytable::error.permit",[
+        return view("jiny-wire-table::error.permit",[
             'actions'=>$this->actions,
             'request'=>$request
         ]);

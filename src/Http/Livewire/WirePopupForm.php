@@ -16,7 +16,7 @@ class WirePopupForm extends Component
     use \Jiny\WireTable\Http\Trait\Hook;
     use \Jiny\WireTable\Http\Trait\Permit;
 
-    use \Jiny\Table\Http\Livewire\Tabbar;
+    use \Jiny\WireTable\Http\Trait\Tabbar;
 
     use \Jiny\WireTable\Http\Trait\Upload;
 

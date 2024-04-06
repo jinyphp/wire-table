@@ -1,5 +1,5 @@
 <div>
-    <x-table-loading-indicator />
+    <x-loading-indicator />
 
     <!-- 팝업 데이터 수정창 -->
     @if ($popupForm)
@@ -125,6 +125,6 @@
 
 
     {{-- 퍼미션 알람 --}}
-    {{-- @include('jinytable::error.popup.permit') --}}
+    {{-- @include('jiny-wire-table::error.popup.permit') --}}
 
 </div>
