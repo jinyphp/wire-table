@@ -25,7 +25,7 @@ class WireTableTh extends Component
      */
     public function render()
     {
-        return view("jiny-wire-table::".'components.wire-table-th',[
+        return view("jiny-wire-table::".'components.table.wire-table-th',[
 
         ]);
     }

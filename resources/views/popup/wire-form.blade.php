@@ -1,10 +1,10 @@
 <div>
     <x-loading-indicator/>
 
+
     <!-- 팝업 데이터 수정창 -->
     @if ($popupForm)
     <x-wire-dialog-modal wire:model="popupForm" maxWidth="3xl">
-
         <x-slot name="title">
             @if (isset($actions['id']))
                 {{ __('자료 수정') }}

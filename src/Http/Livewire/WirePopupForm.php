@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Livewire\WithFileUploads;
+use Livewire\Attributes\On;
 
 class WirePopupForm extends Component
 {
@@ -69,10 +70,10 @@ class WirePopupForm extends Component
     /** ----- ----- ----- ----- -----
      *  신규 데이터 삽입
      */
-
+    #[On('popupFormCreate')]
     public function popupFormCreate($value=null)
     {
-        // dd("popup-create");
+        //dd("popup-create");
         // create 메소드를 호출합니다.
         return $this->create($value);
     }
@@ -88,6 +89,7 @@ class WirePopupForm extends Component
         return $this;
     }
 
+    #[On('create')]
     public function create($value=null)
     {
         $this->message = null;
@@ -195,6 +197,13 @@ class WirePopupForm extends Component
     /** ----- ----- ----- ----- -----
      *  데이터 수정
      */
+    #[On('popupFormEdit')]
+    public function popupFormEdit($id)
+    {
+        //dd($id);
+        $this->edit($id);
+    }
+
     public function popupEdit($id)
     {
         $this->edit($id);
@@ -207,6 +216,8 @@ class WirePopupForm extends Component
         if($this->permit['update']) {
             $this->popupFormOpen();
 
+            //dd("edit");
+
             if($id) {
                 $this->actions['id'] = $id;
             }
@@ -216,15 +227,18 @@ class WirePopupForm extends Component
                 $this->forms = $controller->hookEditing($this, $this->forms);
             }
 
+            //dd($this->actions);
             if (isset($this->actions['id'])) {
                 $row = DB::table($this->actions['table'])->find($this->actions['id']);
+                //dd($row);
                 $this->setForm($row);
             }
 
             // 2. 수정 데이터를 읽어온후, 값을 처리해야 되는 경우
             if ($controller = $this->isHook("hookEdited")) {
+                //dd("hookEdited");
                 $this->forms = $controller->hookEdited($this, $this->forms, $this->forms);
-
+                //dd($this->forms);
             }
 
         } else {

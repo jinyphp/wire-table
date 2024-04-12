@@ -53,48 +53,58 @@
     @endif
 
 
+    {{-- 테이블 목록 출력 --}}
     <div class="card">
-        @if (isset($actions['table_title']))
-        <div class="card-header">
-            <h4 class="header-title">{{$actions['table_title']}}</h4>
-            <p class="text-muted font-14">
+        @if (isset($actions['view']['list']))
+            @includeIf($actions['view']['list'])
+        @endif
 
-            </p>
+        @if(empty($rows))
+        <div class="text-center">
+            목록이 없습니다.
         </div>
         @endif
 
-        <div class="card-body">
-            @if (isset($actions['view']['list']))
-                @includeIf($actions['view']['list'])
-            @endif
-
-            @if(empty($rows))
-            <div>
-                목록이 없습니다.
+        <div class="d-flex justify-content-between">
+            <div class="px-2 py-2">
+                전체 {{count($ids)}} 개가 검색되었습니다.
             </div>
-            @endif
+            <div>
+                @if (isset($rows) && is_object($rows))
+                    @if(method_exists($rows, "links"))
+                    <div>{{ $rows->links() }}</div>
+                    @else
+
+                    @endif
+                @else
+
+                @endif
+            </div>
         </div>
 
-        <div class="card-footer">
-            @if (isset($rows) && is_object($rows))
-                @if(method_exists($rows, "links"))
-                {{ $rows->links() }}
-                @endif
-            @endif
 
+
+    </div>
+
+    <div class="d-flex justify-content-between" style="margin-top:-16px;">
+        <div>
             {{-- 선택갯수 표시--}}
-            <span id="selected-num">{{count($selected)}}</span>
-            <span class="px-2">selected</span>
+            <span id="selected-num">{{$selected_count}}</span>
+            <span class="px-1">selected</span>
 
-            @if (count($selected))
+            @if ($selected_count)
             <button type="button" class="btn btn-danger btn-sm" id="selected-delete"
                 wire:click="popupDeleteOpen">선택삭제</button>
             @else
-            <button type="button" class="btn btn-danger btn-sm" id="selected-delete"
+            <button type="button" class="btn btn-outline-secondary btn-sm" id="selected-delete"
                 wire:click="popupDeleteOpen" disabled>선택삭제</button>
             @endif
         </div>
+        <div>
+            <button class="btn btn-primary btn-sm" wire:click="create()">Add New</button>
+        </div>
     </div>
+
 
 
     {{-- 선택삭제 --}}

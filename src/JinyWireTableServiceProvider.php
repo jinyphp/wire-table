@@ -22,12 +22,13 @@ class JinyWireTableServiceProvider extends ServiceProvider
 
 
         // 화면 UI
-        Blade::component($this->package.'::components.'.'wire-table', 'wire-table');
-        Blade::component($this->package.'::components.'.'wire-thead', 'wire-thead');
+        Blade::component($this->package.'::components.table.'.'wire-table', 'wire-table');
+        Blade::component($this->package.'::components.table.'.'wire-thead', 'wire-thead');
         //Blade::component($this->package.'::components.'.'wire-tbody', 'wire-tbody');
         Blade::component(\Jiny\WireTable\View\Components\WireTbody::class, "wire-tbody");
         Blade::component(\Jiny\WireTable\View\Components\WireTbodyItem::class, "wire-tbody-item");
         Blade::component(\Jiny\WireTable\View\Components\WireTableTh::class, "wire-th");
+
 
 
         // 팝업 Dialog
@@ -46,6 +47,8 @@ class JinyWireTableServiceProvider extends ServiceProvider
         Blade::component($this->package.'::components.'.'wire.create', 'btn-wireCreate');
         Blade::component($this->package.'::components.'.'wire.manual', 'btn-wireManual');
 
+        Blade::component($this->package.'::components.'.'popupFormCreate', 'popupFormCreate');
+
         // 라이브와이어 동작을 표시하기 위한 인디케이터
         Blade::component($this->package.'::components.'.'loading-indicator', 'loading-indicator');
         Blade::component($this->package.'::components.'.'upload-indicator', 'upload-indicator');
@@ -61,6 +64,9 @@ class JinyWireTableServiceProvider extends ServiceProvider
             Livewire::component('WirePopupForm', \Jiny\WireTable\Http\Livewire\WirePopupForm::class);
             //Livewire::component('PopupForm', \Jiny\Table\Http\Livewire\PopupForm::class); // 팝업형
 
+
+            Livewire::component('ButtonPopupCreate',
+                \Jiny\WireTable\Http\Livewire\ButtonPopupCreate::class);
 
         });
     }

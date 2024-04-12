@@ -27,7 +27,7 @@ class WireTbodyItem extends Component
      */
     public function render()
     {
-        return view("jiny-wire-table::".'components.wire-tbody-item',[
+        return view("jiny-wire-table::".'components.table.wire-tbody-item',[
 
         ]);
     }

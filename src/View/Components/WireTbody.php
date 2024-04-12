@@ -24,7 +24,7 @@ class WireTbody extends Component
     {
         $rows = wireShare()->wire->_rows;
         $selected = wireShare()->wire->selected;
-        return view("jiny-wire-table::".'components.wire-tbody',[
+        return view("jiny-wire-table::".'components.table.wire-tbody',[
             'rows' => $rows,
             'selected'=>$selected
         ]);

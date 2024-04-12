@@ -7,17 +7,19 @@ use Illuminate\Support\Facades\Storage;
 trait CheckDelete
 {
 
-
     /** ----- ----- ----- ----- -----
      *  checkBox Selecting
      */
 
     public $selectedall = false;
     public $selected = [];
+    public $selected_count = 0;
 
     # Livewire Hook
+
     public function updatedSelectedall($value)
     {
+        //dd("aa");
         if($value) {
             $this->selected = [];
             foreach($this->ids as $i => $v) {
@@ -28,7 +30,29 @@ trait CheckDelete
         }
     }
 
+
+    public function checkAllSelect()
+    {
+        if($this->selectedall == false) {
+            $this->selectedall = true;
+            //dd($this->ids);
+            //$this->selected = [];
+            foreach($this->ids as $i => $v) {
+                $this->selected[$v] = 1; //strval($v);
+            }
+            //dd($this->selected);
+        } else {
+            $this->selectedall = false;
+            //dd("Unselected");
+            //$this->selected = [];
+            foreach($this->ids as $i => $v) {
+                $this->selected[$v] = 0; //strval($v);
+            }
+        }
+    }
+
     # Livewire Hook
+    /*
     public function updatedSelected($value)
     {
         if(count($this->selected) == count($this->ids)) {
@@ -37,6 +61,33 @@ trait CheckDelete
             $this->selectedall = false;
         }
     }
+    */
+    public function checkItem($id)
+    {
+        //dd($id);
+        // 초기화
+        if(!isset($this->selected[$id])) $this->selected[$id] = 0;
+
+        if($this->selected[$id] == 1) {
+            $this->selected[$id] = 0;
+        } else {
+            $this->selected[$id] = 1;
+        }
+
+        // 선택된 true 갯수 확인
+        $this->selected_count = 0;
+        foreach($this->selected as $item) {
+            if($item == 1) $this->selected_count++;
+        }
+
+        // ids : 불러온 데이터 갯수
+        if($this->selected_count == count($this->ids)) {
+            $this->selectedall = 1;
+        } else {
+            $this->selectedall = 0;
+        }
+    }
+
 
     # Livewire Hook
     public function updatedPaging($value)

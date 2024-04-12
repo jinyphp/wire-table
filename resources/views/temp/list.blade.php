@@ -8,7 +8,7 @@
             @foreach ($rows as $item)
             <x-wire-tbody-item :selected="$selected" :item="$item">
                 {{-- 테이블 리스트 --}}
-                
+
             </x-wire-tbody-item>
             @endforeach
         @endif

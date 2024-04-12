@@ -13,9 +13,7 @@ use Illuminate\Support\Facades\Storage;
 class WireTable extends Component
 {
     use WithPagination;
-
     use \Jiny\WireTable\Http\Trait\Hook;
-
     use \Jiny\WireTable\Http\Trait\Permit;
     use \Jiny\WireTable\Http\Trait\CheckDelete;
     use \Jiny\WireTable\Http\Trait\DataFetch;
@@ -115,6 +113,7 @@ class WireTable extends Component
         // 팝업창 폼을 활성화 합니다.
         $funcEditPopup = function ($item, $title)
         {
+            // emit -> $this->dispatch('popupFormCreate');
             $link = xLink($title)->setHref("javascript: void(0);");
             $link->setAttribute("wire:click", "$"."emit('popupEdit','".$item->id."')");
 
@@ -183,7 +182,7 @@ class WireTable extends Component
 
     private function getViewMainLayout()
     {
-        $view = "jiny-wire-table::tables.table"; // 기본값
+        $view = "jiny-wire-table::livewire.wiretable"; // 기본값
 
         if(isset($this->actions['view']['main_layout'])) {
             if($this->actions['view']['main_layout']) {
@@ -212,7 +211,14 @@ class WireTable extends Component
 
     public function edit($id)
     {
-        $this->emit('popupEdit',$id);
+        //dd($id);
+        //$this->emit('popupEdit',$id);
+        $this->dispatch('popupFormEdit',$id);
+    }
+
+    public function create()
+    {
+        $this->dispatch('popupFormCreate');
     }
 
 

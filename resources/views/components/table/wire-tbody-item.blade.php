@@ -6,7 +6,19 @@
 @endif
 
     <td width='20'>
-        <input type='checkbox' name='ids' value="{{ $item->id }}" class="form-check-input" wire:model="selected">
+        {{-- <input type='checkbox' name='ids'
+            value="{{ $item->id }}"
+            class="form-check-input"
+            wire:model="selected"> --}}
+
+
+        <input type='checkbox' name='ids'
+            value="{{ $item->id }}"
+            class="form-check-input"
+            wire:click="checkItem({{ $item->id }})">
+
+
+
     </td>
 
     {{ $slot }}

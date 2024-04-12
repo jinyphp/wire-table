@@ -1,25 +1,17 @@
-{{-- 테일윈드 & AlpinJS 필요 --}}
 @props(['id' => null, 'maxWidth' => null])
 
-<x-wire-modal :id="$id" :maxWidth="$maxWidth" {{ $attributes }}>
+<x-modal :id="$id" :maxWidth="$maxWidth" {{ $attributes }}>
+    <div class="px-6 py-4">
+        <div class="text-lg font-medium text-gray-900">
+            {{ $title }}
+        </div>
 
-    {{-- 입력받는 title값을 바이패스 --}}
-    @if (isset($title))
-    <x-slot name="title">
-        {{ $title }}
-    </x-slot>
-    @endif
-
-    @if (isset($content))
-    <div class="px-2 py-1">
-        {{ $content }}
+        <div class="mt-4 text-sm text-gray-600">
+            {{ $content }}
+        </div>
     </div>
-    @endif
 
-    @if (isset($footer))
-    <div class="px-4 py-3 bg-white">
+    <div class="flex flex-row justify-end px-6 py-4 bg-gray-100 text-end">
         {{ $footer }}
     </div>
-    @endif
-
-</x-wire-modal>
+</x-modal>
