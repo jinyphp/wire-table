@@ -29,6 +29,11 @@ class BaseController extends Controller
             // Json Actions 정보를 반영
             $this->actions[$key] = $value;
         }
+
+        // 기본값
+        $this->actions['create']['enable'] = true;
+        $this->actions['create']['title'] = "추가";
+
     }
 
     private function detectURI()

@@ -1,7 +1,7 @@
 <x-theme>
     <x-theme-layout>
 
-        <div class="d-flex justify-content-between my-2">
+        {{-- <div class="d-flex justify-content-between my-2">
             <div class="">
                 <h3>
                 @if(isset($actions['title']))
@@ -18,7 +18,8 @@
                 <a href="#" class="btn btn-light bg-white me-2">도움말</a>
                 @livewire('ButtonPopupCreate',['title' => "추가"])
             </div>
-        </div>
+        </div> --}}
+        @includeIf("jiny-wire-table::layouts.title")
 
         @livewire('WireTable', ['actions'=>$actions])
 
