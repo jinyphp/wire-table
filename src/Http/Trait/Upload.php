@@ -8,16 +8,22 @@ use Illuminate\Support\Facades\DB;
 trait Upload
 {
     public $upload_visible = "private";
+    public $upload_path;
     public $upload = [];
 
-    public function fileUpload()
+    public function fileUpload($form=null, $path=null)
     {
-        // private, public 타입 확인
-        // 업로드 저장 경로 페스 설정
-        //$path = $this->checkUploadPath();
-
         $this->upload = []; // 초기화
-        $form = $this->forms;
+
+        if(!$form) {
+            $form = $this->forms;
+        }
+
+        // 매개변수로 업로드 경로를 설정한 경우
+        if($path) {
+            $this->upload_path = $path;
+        }
+
         $this->formFileCheck($form);
 
         foreach($this->upload as $key => $value) {
@@ -63,10 +69,17 @@ trait Upload
 
     private function uploadPath()
     {
-        if(isset($this->actions['upload']['path'])) {
-            return $this->actions['upload']['path'];
+        // 매개변수로 업로드 경로가 지정된경우
+        if($this->upload_path) {
+            return "/upload".$this->upload_path;
         }
 
+        // Actions에서 업로드 경로가 지정된 경우
+        if(isset($this->actions['upload']['path'])) {
+            return "/upload".$this->actions['upload']['path'];
+        }
+
+        // 기본 업로드 경로
         return "upload";
     }
 
