@@ -116,7 +116,7 @@ class DashboardController extends BaseController
     }
 
     // Request에서 전달된 query 스트링값을 저장합니다.
-    private function checkRequestQuery($request)
+    protected function checkRequestQuery($request)
     {
         if($request->query) {
             foreach($request->query as $key => $q) {
@@ -137,7 +137,7 @@ class DashboardController extends BaseController
         return $this;
     }
 
-    private function checkRequestNesteds($request)
+    protected function checkRequestNesteds($request)
     {
         //dd($request->id);
         //dd($request);
