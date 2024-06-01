@@ -1,6 +1,6 @@
 <!-- 팝업 데이터 수정창 -->
 @if ($popupPermit)
-<x-popup-dialog wire:model="popupPermit" maxWidth="2xl" >
+<x-wire-dialog-modal wire:model="popupPermit" maxWidth="2xl" >
     <x-slot name="title">
         {{__('권환체크')}}
     </x-slot>
@@ -48,5 +48,5 @@
             </div>
         </div>
     </x-slot>
-</x-popup-dialog>
+</x-x-wire-dialog-modal>
 @endif

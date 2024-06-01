@@ -46,6 +46,7 @@ class WireTable extends Component
         }
 
         // 테이블 컬럼 정보읽기
+        /*
         if(isset($this->actions['table']) && $this->actions['table']) {
             $columns = DB::select("SHOW COLUMNS FROM ".$this->actions['table']);
             foreach ($columns as $column) {
@@ -53,6 +54,7 @@ class WireTable extends Component
                 //echo "Column: $column->Field, Type: $column->Type\n";
             }
         }
+        */
 
 
     }
