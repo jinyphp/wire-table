@@ -12,7 +12,16 @@ use Illuminate\Support\Facades\Auth;
 use Jiny\WireTable\Http\Controllers\BaseController;
 class LiveController extends BaseController
 {
-    private $packageName = "jiny-wire-table";
+    // 화면처리
+    protected $viewFileLayout;
+    protected $viewFileTable;
+    protected $viewFileList;
+    protected $viewFileItem;
+    protected $viewFileTitle;
+    protected $viewFileForms;
+
+
+    protected $packageName = "jiny-wire-table";
     use \Jiny\WireTable\Http\Trait\Permit;
     //use \Jiny\Table\Http\Controllers\SetMenu;
 
@@ -40,6 +49,8 @@ class LiveController extends BaseController
      */
     public function index(Request $request)
     {
+        //dd($request->id);
+
         // IP확인
         $ipAddress = $request->ip();
         $this->actions['request']['ip'] = $ipAddress;
@@ -49,6 +60,9 @@ class LiveController extends BaseController
 
         // request로 전달되는 uri 쿼리스트링을 확인합니다.
         $this->checkRequestQuery($request);
+
+        // 라이브와이어로 전달될, Table Blade를 설정합니다.
+        $this->setViewFileTable();
 
 
         // 테마확인
@@ -70,28 +84,13 @@ class LiveController extends BaseController
         $this->permitCheck();
         if($this->permit['read']) {
 
-            $view = $this->packageName."::layouts.table";
-
-            // 사용자 레이아웃 우선설정
-            if (isset($this->actions['view']['layout'])) {
-                $view = $this->actions['view']['layout'];
-            }
-
+            $view = $this->getViewFileLayout();
             if (view()->exists($view)) {
                 $_data = [
                     'actions'=>$this->actions,
                     'nested'=>$this->nested,
                     'request'=>$request
                 ];
-                //dd($data);
-                /*
-                if(!empty($data)) {
-                    foreach($data as $key => $item) {
-                        $_data[$key] = $item;
-                    }
-                }
-                */
-
                 return view($view,$_data);
             }
 
@@ -107,6 +106,37 @@ class LiveController extends BaseController
             'actions'=>$this->actions,
             'request'=>$request
         ]);
+    }
+
+
+    protected function setViewFileTable()
+    {
+        // 사용자 테이블이 미설정 되어 있는 경우
+        if (!isset($this->actions['view']['table'])) {
+            if($this->viewFileTable) {
+                $this->actions['view']['table'] = $this->viewFileTable;
+            }
+        }
+
+        return $this->actions['view']['table'];
+    }
+
+
+    // 인덱스의 Layout view를 확인합니다.
+    protected function getViewFileLayout()
+    {
+        $view = $this->packageName."::layouts.table";
+        // 기본값
+        if($this->viewFileLayout) {
+            $view = $this->viewFileLayout;
+        }
+
+        // 사용자 레이아웃 우선설정
+        if (isset($this->actions['view']['layout'])) {
+            $view = $this->actions['view']['layout'];
+        }
+
+        return $view;
     }
 
     // 컨트롤러에 테마를 설정합니다.
@@ -140,6 +170,7 @@ class LiveController extends BaseController
 
     private function checkRequestNesteds($request)
     {
+        //dd($this->actions['nesteds']);
         //dd($request->id);
         //dd($request);
 

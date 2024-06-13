@@ -2,6 +2,22 @@
 
 // Rows 배열에서 id만 추출합니다.
 if (!function_exists("rowsId")) {
+    function getIdsFromRows($rows, $key="id") {
+        $ids = [];
+        foreach($rows as $row) {
+            if(is_object($row)) {
+                $ids []= $row->$key;
+            } else {
+                $ids []= $row[$key];
+            }
+        }
+        return $ids;
+    }
+}
+
+
+// Rows 배열에서 id만 추출합니다.
+if (!function_exists("rowsId")) {
     function rowsId($rows, $key="id") {
         $ids = [];
         foreach($rows as $row) {

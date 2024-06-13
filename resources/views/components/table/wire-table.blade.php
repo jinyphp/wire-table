@@ -22,7 +22,7 @@
 </style>
 @endpush
 {{-- table-striped table-centered mb-0 --}}
-<table {{$attributes->merge(['class' => ''])}}>
+<table {{$attributes->merge(['class' => 'w-100'])}}>
     {{$slot}}
 </table>
 

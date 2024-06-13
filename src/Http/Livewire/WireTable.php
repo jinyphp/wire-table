@@ -203,6 +203,10 @@ class WireTable extends Component
     }
 
 
+
+    /**
+     *
+     */
     /* ----- ----- ----- ----- ----- */
 
     protected $listeners = ['refeshTable'];
@@ -220,6 +224,9 @@ class WireTable extends Component
 
     public function create()
     {
+        // WirePopupForm의 popupFormCreate를
+        // 호출할 수 있는 이벤트를 발생합니다.
+        dump("popupFormCreate");
         $this->dispatch('popupFormCreate');
     }
 

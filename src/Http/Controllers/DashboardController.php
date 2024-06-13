@@ -3,10 +3,8 @@ namespace Jiny\WireTable\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
-
 use Illuminate\Support\Facades\Auth;
 
 use Jiny\WireTable\Http\Controllers\BaseController;
@@ -25,14 +23,6 @@ class DashboardController extends BaseController
     }
 
 
-    /**
-     * index 뷰 리소스 파일을 설정합니다.
-     */
-    protected function setViewIndex($name)
-    {
-        $this->actions['view']['main'] = $name;
-        return $this;
-    }
 
     /**
      * CRUD Resource Process
@@ -106,6 +96,15 @@ class DashboardController extends BaseController
             'actions'=>$this->actions,
             'request'=>$request
         ]);
+    }
+
+    /**
+     * index 뷰 리소스 파일을 설정합니다.
+     */
+    protected function setViewIndex($name)
+    {
+        $this->actions['view']['main'] = $name;
+        return $this;
     }
 
     // 컨트롤러에 테마를 설정합니다.

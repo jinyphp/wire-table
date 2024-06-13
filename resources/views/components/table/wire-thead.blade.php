@@ -2,9 +2,11 @@
     <tr>
         {{-- 전체선택 --}}
         <th width='20'>
-            <input type='checkbox' class="form-check-input"
-                wire:model="selectedall">
+            <input type='checkbox'
+                class="form-check-input"
+                wire:model.live="selectedall">
         </th>
+
 
         {{$slot}}
 

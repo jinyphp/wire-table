@@ -66,6 +66,11 @@ trait Permit
         return $this->permit;
     }
 
+    protected function isPermitRead()
+    {
+        return $this->permit['read'];
+    }
+
     private function isRole()
     {
         if(isset($this->actions['role']) && $this->actions['role']) {

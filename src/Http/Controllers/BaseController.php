@@ -14,6 +14,10 @@ class BaseController extends Controller
 
     public function __construct()
     {
+        // 정적변수에 현재의 객체를 할당하여 공유한다.
+        // self::$Instance = $this;
+        //wireShare()->controller = $this;
+
         ## 라우트정보
         $this->detectURI();
         $this->detectRouteName();
@@ -34,7 +38,31 @@ class BaseController extends Controller
         $this->actions['create']['enable'] = true;
         $this->actions['create']['title'] = "추가";
 
+        // 선택삭제 활성화
+        $this->actions['delete']['check'] = true;
+
+        // 수정기능 활성화
+        $this->actions['edit']['enable'] = true;
+
     }
+
+    // 생성버튼을 비활성화 합니다.
+    protected function createDisable()
+    {
+        unset($this->actions['create']);
+    }
+
+    protected function checkDeleteDisable()
+    {
+        unset($this->actions['delete']['check']);
+    }
+
+    protected function editDisable()
+    {
+        $this->actions['edit']['enable'] = false;
+    }
+
+
 
     private function detectURI()
     {
@@ -47,13 +75,16 @@ class BaseController extends Controller
         foreach($slug as $key => $item) {
             if($item[0] == "{") {
                 $param = substr($item, 1, strlen($item)-2);
+                $param = trim($param,'?');
+                //dump($param);
                 $this->actions['nesteds'] []= $param;
+
                 continue; //unset($slug[$key])
             }
             $_slug []= $item;
         }
 
-        //dd($_slug);
+        //dd($this->actions['nesteds']);
 
         // resource 컨트롤러에서 ~/create 는 삭제.
         $last = count($_slug)-1;
@@ -106,12 +137,18 @@ class BaseController extends Controller
      * 싱글턴, 라이브와이어와 컨트롤러 연결
      */
     protected static $Instance;
+
+
     public $wire;
+    /*
     public static function getInstance($wire)
     {
         self::$Instance->wire = $wire;
         return self::$Instance;
     }
+    */
+
+
 
     ## 컨트롤러를 통하여 호출시,
     ## 양방향 의존성 설정을 위한 컨트롤러 명 설정

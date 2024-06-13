@@ -59,6 +59,7 @@ class JinyWireTableServiceProvider extends ServiceProvider
     {
         /* 라이브와이어 컴포넌트 등록 */
         $this->app->afterResolving(BladeCompiler::class, function () {
+
             Livewire::component('WireTable', \Jiny\WireTable\Http\Livewire\WireTable::class);
             // 팝업 form
             Livewire::component('WirePopupForm', \Jiny\WireTable\Http\Livewire\WirePopupForm::class);
@@ -67,6 +68,11 @@ class JinyWireTableServiceProvider extends ServiceProvider
 
             Livewire::component('ButtonPopupCreate',
                 \Jiny\WireTable\Http\Livewire\ButtonPopupCreate::class);
+
+            // WireTable + popupForm을 결합한 통합본
+            Livewire::component('WireTable-PopupForm',
+                \Jiny\WireTable\Http\Livewire\WireTablePopupForm::class);
+
 
         });
     }

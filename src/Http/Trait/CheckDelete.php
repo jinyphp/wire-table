@@ -6,20 +6,16 @@ use Illuminate\Support\Facades\Storage;
 
 trait CheckDelete
 {
-
     /** ----- ----- ----- ----- -----
      *  checkBox Selecting
      */
-
     public $selectedall = false;
     public $selected = [];
     public $selected_count = 0;
 
-    # Livewire Hook
-
+    // model.live로 selectedall 클릭시 호출됩니다.
     public function updatedSelectedall($value)
     {
-        //dd("aa");
         if($value) {
             $this->selected = [];
             foreach($this->ids as $i => $v) {
@@ -30,29 +26,7 @@ trait CheckDelete
         }
     }
 
-
-    public function checkAllSelect()
-    {
-        if($this->selectedall == false) {
-            $this->selectedall = true;
-            //dd($this->ids);
-            //$this->selected = [];
-            foreach($this->ids as $i => $v) {
-                $this->selected[$v] = 1; //strval($v);
-            }
-            //dd($this->selected);
-        } else {
-            $this->selectedall = false;
-            //dd("Unselected");
-            //$this->selected = [];
-            foreach($this->ids as $i => $v) {
-                $this->selected[$v] = 0; //strval($v);
-            }
-        }
-    }
-
     # Livewire Hook
-    /*
     public function updatedSelected($value)
     {
         if(count($this->selected) == count($this->ids)) {
@@ -60,32 +34,9 @@ trait CheckDelete
         } else {
             $this->selectedall = false;
         }
-    }
-    */
-    public function checkItem($id)
-    {
-        //dd($id);
-        // 초기화
-        if(!isset($this->selected[$id])) $this->selected[$id] = 0;
-
-        if($this->selected[$id] == 1) {
-            $this->selected[$id] = 0;
-        } else {
-            $this->selected[$id] = 1;
-        }
 
         // 선택된 true 갯수 확인
-        $this->selected_count = 0;
-        foreach($this->selected as $item) {
-            if($item == 1) $this->selected_count++;
-        }
-
-        // ids : 불러온 데이터 갯수
-        if($this->selected_count == count($this->ids)) {
-            $this->selectedall = 1;
-        } else {
-            $this->selectedall = 0;
-        }
+        $this->selected_count = count($this->selected);
     }
 
 
@@ -104,41 +55,44 @@ trait CheckDelete
      */
 
     # 선택삭제 팝업창
-    public $popupDelete = false;
+    public $checkDelete = false;
+    public $checkDeleteConfirm = false;
 
-    public function popupDeleteOpen()
+    public function popupCheckDelete()
     {
         if($this->permit['delete']) {
-            $this->popupDelete = true;
+            $this->checkDelete = true;
         } else {
             $this->popupPermitOpen();
         }
     }
 
-    public function popupDeleteClose()
+    public function popupCheckDeleteClose()
     {
         // 삭제 확인창을 닫기
-        $this->popupDelete = false;
+        $this->checkDelete = false;
+        $this->checkDeleteConfirm = false;
     }
 
-    public function confirmDelete()
+    public function checkeDeleteConfirm()
     {
-        $this->checkeDelete();
+        $this->checkDeleteConfirm = true;
     }
 
-    public function checkeDelete()
+    public function checkeDeleteRun()
     {
         if($this->permit['delete']) {
 
             // 1.컨트롤러 메서드 호출
-            if(isset($this->actions['controller'])) {
-                $controller = $this->actions['controller']::getInstance($this);
+            if ($controller = $this->isHook("hookCheckDeleting")) {
                 if(method_exists($controller, "hookCheckDeleting")) {
                     $controller->hookCheckDeleting($this->selected);
                 }
             }
 
+
             // 2.uploadfile 필드 조회
+            /*
             $fields = DB::table('uploadfile')->where('table', $this->actions['table'])->get();
             $rows = DB::table($this->actions['table'])->whereIn('id', $this->selected)->get();
             foreach ($rows as $row) {
@@ -149,31 +103,26 @@ trait CheckDelete
                     }
                 }
             }
+            */
 
             // 3.복수의 ids를 삭제합니다.
-            if($this->dataType == "table") {
-                DB::table($this->actions['table'])->whereIn('id', $this->selected)->delete();
-            } else if($this->dataType == "uri") {
-
-            } else if($this->dataType == "file") {
-
-            }
+            DB::table($this->actions['table'])
+                ->whereIn('id', $this->selected)->delete();
 
 
-            // 컨트롤러 메서드 호출
-            if(isset($this->actions['controller'])) {
-                $controller = $this->actions['controller']::getInstance($this);
+
+            // 4. 컨트롤러 메서드 호출
+            if ($controller = $this->isHook("hookCheckDeleted")) {
                 if(method_exists($controller, "hookCheckDeleted")) {
                     $controller->hookCheckDeleted($this->selected);
                 }
             }
 
-            // 4.페이지목록 수 변경시,
-            // 기존에 선택된 체크박스는 초기화 함.
+
+            // 5. 기존에 선택된 체크박스는 초기화 함.
             $this->selectedall = false;
             $this->selected = [];
-
-            $this->popupDeleteClose();
+            $this->popupCheckDeleteClose();
 
         } else {
             $this->popupPermitOpen();
