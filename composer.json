@@ -1,5 +1,5 @@
 {
-    "name": "jiny/wiretable",
+    "name": "jiny/wire-table",
     "description": "livewire with data-tabel controller",
     "type": "library",
     "license": "MIT",
@@ -11,7 +11,8 @@
     ],
     "minimum-stability": "dev",
     "require": {
-        "php": "^8.1"
+        "php": "^8.1",
+        "livewire/livewire": "^3.5"
     },
     "autoload": {
         "psr-4": {

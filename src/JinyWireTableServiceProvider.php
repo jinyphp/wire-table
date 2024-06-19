@@ -29,6 +29,14 @@ class JinyWireTableServiceProvider extends ServiceProvider
         Blade::component(\Jiny\WireTable\View\Components\WireTbodyItem::class, "wire-tbody-item");
         Blade::component(\Jiny\WireTable\View\Components\WireTableTh::class, "wire-th");
 
+        Blade::component(\Jiny\WireTable\View\Components\WireGridItem::class, "wire-grid-item");
+
+        // breadcrumb-item
+        Blade::component($this->package.'::components.breadcrumb.items', 'breadcrumb-item');
+
+        // buttons
+        Blade::component($this->package.'::components.buttons.btn_video', 'btn-video');
+        Blade::component($this->package.'::components.buttons.btn_manual', 'btn-manual');
 
 
         // 팝업 Dialog

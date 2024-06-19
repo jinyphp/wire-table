@@ -49,8 +49,6 @@ class LiveController extends BaseController
      */
     public function index(Request $request)
     {
-        //dd($request->id);
-
         // IP확인
         $ipAddress = $request->ip();
         $this->actions['request']['ip'] = $ipAddress;
@@ -69,7 +67,11 @@ class LiveController extends BaseController
         if(isset($this->actions['theme'])) {
             if($this->actions['theme']) {
                 if(function_exists("setTheme")) {
+                    $this->actions['theme'] = str_replace('.',"/",$this->actions['theme']);
                     setTheme($this->actions['theme']);
+
+                    // 레이아웃 적용을 테마로 설정합니다.
+                    $this->viewFileLayout = $this->packageName."::theme.layout";
                 }
             }
         }
@@ -80,10 +82,11 @@ class LiveController extends BaseController
             //$this->setUserMenu($user);
         }
 
-        // 권한
+        // 권한확인
         $this->permitCheck();
         if($this->permit['read']) {
 
+            ## 테이블 레이아웃을 읽어 옵니다.
             $view = $this->getViewFileLayout();
             if (view()->exists($view)) {
                 $_data = [
@@ -94,14 +97,16 @@ class LiveController extends BaseController
                 return view($view,$_data);
             }
 
+            ## 테이블 레이아웃 없는 경우
             return view($this->packageName."::errors.message",[
-                'message' => "layouts.table을 읽어올수 없습니다."
+                'message' => $view."를 읽어올수 없습니다."
             ]);
         }
 
 
 
-        // 권한 접속 실패
+        ## 권한 접속 실패
+        ## 권환에 대한 오류 화면을 출력합니다.
         return view("jiny-wire-table::error.permit",[
             'actions'=>$this->actions,
             'request'=>$request
@@ -139,7 +144,9 @@ class LiveController extends BaseController
         return $view;
     }
 
-    // 컨트롤러에 테마를 설정합니다.
+    /**
+     * 컨트롤러에 테마를 설정합니다.
+     */
     protected function setTheme($name)
     {
         $this->actions['theme'] = $name;
@@ -147,7 +154,7 @@ class LiveController extends BaseController
     }
 
     // Request에서 전달된 query 스트링값을 저장합니다.
-    private function checkRequestQuery($request)
+    protected function checkRequestQuery($request)
     {
         if($request->query) {
             foreach($request->query as $key => $q) {
@@ -168,7 +175,7 @@ class LiveController extends BaseController
         return $this;
     }
 
-    private function checkRequestNesteds($request)
+    protected function checkRequestNesteds($request)
     {
         //dd($this->actions['nesteds']);
         //dd($request->id);

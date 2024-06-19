@@ -1,3 +1,4 @@
+
 {{-- Title --}}
 @if(isset($actions['view']['title']))
     @includeIf($actions['view']['title'])
@@ -6,7 +7,7 @@
 @endif
 
 {{-- CRUD 테이블 --}}
-<section>
+<section class="p-2">
     <main>
         @livewire('WireTable-PopupForm', [
             'actions'=>$actions

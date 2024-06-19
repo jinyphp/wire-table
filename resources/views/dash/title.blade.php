@@ -16,6 +16,7 @@
     </div>
 
     <div class="page-title-box">
+
         <x-breadcrumb-item>
             {{$actions['route']['uri']}}
         </x-breadcrumb-item>
