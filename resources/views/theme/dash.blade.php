@@ -11,6 +11,8 @@
         @endif
         </section>
 
+
+
         {{-- dashboard 메인 컨덴츠 출력 --}}
         <section>
             @if(isset($actions['view']['main']))

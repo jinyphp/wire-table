@@ -150,6 +150,10 @@ class LiveController extends BaseController
     protected function setTheme($name)
     {
         $this->actions['theme'] = $name;
+
+        // 세션에 테마 저장
+        session()->put('theme', $name);
+
         return $this;
     }
 
