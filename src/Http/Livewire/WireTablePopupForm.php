@@ -6,12 +6,14 @@ use Illuminate\Routing\Route;
 use Livewire\Component;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
-
 use Livewire\WithPagination;
 use Illuminate\Support\Facades\Storage;
 
+use Livewire\WithFileUploads;
+
 class WireTablePopupForm extends Component
 {
+    use WithFileUploads;
     use WithPagination;
     use \Jiny\WireTable\Http\Trait\Hook;
     use \Jiny\WireTable\Http\Trait\Permit;

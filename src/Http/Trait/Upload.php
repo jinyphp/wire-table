@@ -71,7 +71,9 @@ trait Upload
     {
         // 매개변수로 업로드 경로가 지정된경우
         if($this->upload_path) {
-            return "/upload".$this->upload_path;
+            //return "/upload".$this->upload_path;
+            $path = ltrim($this->upload_path,'/');
+            return "/".$path;
         }
 
         // Actions에서 업로드 경로가 지정된 경우
@@ -80,7 +82,7 @@ trait Upload
         }
 
         // 기본 업로드 경로
-        return "upload";
+        return "/upload";
     }
 
 
