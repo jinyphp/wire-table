@@ -1,5 +1,34 @@
+<x-flex-between>
+    <button class="btn btn-primary" type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#collapseFilter"
+        aria-expanded="false"
+        aria-controls="collapseFilter">
+
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-funnel" viewBox="0 0 16 16">
+            <path d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.342.474l-3 1A.5.5 0 0 1 6 14.5V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5zm1 .5v1.308l4.372 4.858A.5.5 0 0 1 7 8.5v5.306l2-.666V8.5a.5.5 0 0 1 .128-.334L13.5 3.308V2z"/>
+        </svg>
+
+        조건필터
+    </button>
+
+    <div>
+        @if(isset($actions['create']['enable']) && $actions['create']['enable'])
+            {{-- WireTable내의 create 메소드를 호출합니다. --}}
+            <button class="btn btn-primary" wire:click="create">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-lg" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/>
+                </svg>
+                @if(isset($actions['create']['title']))
+                {{$actions['create']['title']}}
+                @endif
+            </button>
+        @endif
+    </div>
+</x-flex-between>
 
 <div class="collapse" id="collapseFilter">
+    <hr>
     <x-flex class="pt-2">
         {{-- 페이징: 한페이지에 보여주는 데이터의 갯수 --}}
         {{-- <div class="d-flex gap-2 align-items-center">
@@ -61,32 +90,3 @@
     </x-flex-between>
 </div>
 
-
-<x-flex-between>
-    <button class="btn btn-primary" type="button"
-        data-bs-toggle="collapse"
-        data-bs-target="#collapseFilter"
-        aria-expanded="false"
-        aria-controls="collapseFilter">
-
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-funnel" viewBox="0 0 16 16">
-            <path d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.342.474l-3 1A.5.5 0 0 1 6 14.5V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5zm1 .5v1.308l4.372 4.858A.5.5 0 0 1 7 8.5v5.306l2-.666V8.5a.5.5 0 0 1 .128-.334L13.5 3.308V2z"/>
-        </svg>
-
-        조건필터
-    </button>
-
-    <div>
-        @if(isset($actions['create']['enable']) && $actions['create']['enable'])
-        {{-- WireTable내의 create 메소드를 호출합니다. --}}
-        <button class="btn btn-primary" wire:click="create">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-lg" viewBox="0 0 16 16">
-                <path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/>
-            </svg>
-            @if(isset($actions['create']['title']))
-            {{$actions['create']['title']}}
-            @endif
-        </button>
-        @endif
-    </div>
-</x-flex-between>

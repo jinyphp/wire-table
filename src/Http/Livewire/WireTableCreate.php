@@ -11,7 +11,11 @@ use Illuminate\Support\Facades\Storage;
 
 use Livewire\WithFileUploads;
 
-class WireTablePopupForm extends Component
+/**
+ * table crud
+ * 단독 create 동작 처리
+ */
+class WireTableCreate extends Component
 {
     use WithFileUploads;
     use WithPagination;
@@ -33,8 +37,6 @@ class WireTablePopupForm extends Component
 
     public $_id;
 
-    public $popupWindowWidth = "4xl";
-
 
     public function mount()
     {
@@ -52,23 +54,7 @@ class WireTablePopupForm extends Component
             $this->paging = $this->actions['paging'];
         }
 
-        // 테이블 컬럼 정보읽기
-        /*
-        if(isset($this->actions['table']) && $this->actions['table']) {
-            $columns = DB::select("SHOW COLUMNS FROM ".$this->actions['table']);
-            foreach ($columns as $column) {
-                $this->table_columns []= $column;
-                //echo "Column: $column->Field, Type: $column->Type\n";
-            }
-        }
-        */
 
-
-        // 호출된 컨트롤러 클래스 생성
-        // if(isset($this->actions['controller'])) {
-        //     $controllerName = $this->actions['controller'];
-        //     $this->controller = new $controllerName;
-        // }
 
     }
 
@@ -90,53 +76,118 @@ class WireTablePopupForm extends Component
             ]);
         }
 
+        $this->message = null;
 
-        // 2. 후킹_before :: 컨트롤러 메서드 호출
-        // DB 데이터를 조회하는 방법들을 변경하려고 할때 유용합니다.
-        if ($controller = $this->isHook("HookIndexing")) {
-            $result = $this->controller->hookIndexing($this);
-            if($result) {
-                // 반환값이 있는 경우, 출력하고 이후동작을 중단함.
-                return view("jiny-wire-table::errors.message",[
-                    'message' => $result
-                ]);
-            }
-        }
+        // 신규 삽입을 위한 데이터 초기화
+        $this->formInitField();
 
+        // 삽입 권한이 있는지 확인
+        if($this->permit['create']) {
+            unset($this->actions['id']);
 
-        // 3. DB에서 데이터를 읽어 옵니다.
-        $rows = $this->dataFetch($this->actions);
-        $totalPages = $rows->lastPage();
-        $currentPage = $rows->currentPage();
-
-
-        // 4. 후킹_after :: 읽어온 데이터를 별도로
-        // 추가 조작이 필요한 경우 동작 합니다. (단, 데이터 읽기가 성공한 경우)
-        if($rows) {
-            if ($controller = $this->isHook("HookIndexed")) {
-                $rows = $this->controller->hookIndexed($this, $rows);
-                if(is_array($rows) || is_object($rows)) {
-                    // 반환되는 Hook 값은, 배열 또는 객체값 이어야 합니다.
-                    // 만일 오류를 발생하고자 한다면, 다른 문자열 값을 출력합니다.
-                } else {
-                    return view("jiny-wire-table::error.message",[
-                        'message'=>"HookIndexed() 호출 반환값이 없습니다."
-                    ]);
+            // 후킹:: 컨트롤러 메서드 호출
+            if ($controller = $this->isHook("hookCreating")) {
+                $form = $this->controller->hookCreating($this, $value);
+                if($form) {
+                    $this->forms = $form;
                 }
             }
-        }
 
-        $this->toData($rows); // rows를 data 배열에 복사해 둡니다.
+
+
+        } else {
+            // 권한 없음 팝업을 활성화 합니다.
+            //dd("create 권환이 없습니다.");
+            //$this->popupPermitOpen();
+        }
 
         // 6. 출력 레이아아웃
         $view_layout = $this->getViewMainLayout();
+        //$view_layout = $this->actions['view']['form'];
         return view($view_layout,[
-            'rows'=>$rows,
-            'totalPages'=>$totalPages,
-            'currentPage'=>$currentPage
+
         ]);
+    }
+
+
+    public $last_id;
+    public function store()
+    {
+        $this->message = null;
+
+        //dd($this->forms);
+
+        // Redirect back to the previous page
+        // return redirect()->back();
+
+        // Dispatch a browser event to handle the redirect in the frontend
+        $this->dispatch('redirect-back');
+
+        if($this->permit['create']) {
+
+
+
+            // 1.유효성 검사
+            if (isset($this->actions['validate'])) {
+                $validator = Validator::make($this->forms, $this->actions['validate'])->validate();
+            }
+
+            // 2. 시간정보 생성
+            $this->forms['created_at'] = date("Y-m-d H:i:s");
+            $this->forms['updated_at'] = date("Y-m-d H:i:s");
+
+            // 3. 파일 업로드 체크 Trait
+            $this->fileUpload();
+
+
+            // 4. 컨트롤러 메서드 호출
+            // 신규 데이터 DB 삽입전에 호출되는 Hook
+            if ($controller = $this->isHook("hookStoring")) {
+                $_form = $this->controller->hookStoring($this, $this->forms);
+                if(is_array($_form)) {
+                    $form = $_form;
+                } else {
+                    // 훅 처리시 오류가 발생됨.
+                    // $this->message = $_form;
+                    return null;
+                }
+            } else {
+                $form = $this->forms;
+            }
+
+            // 5. 데이터 삽입
+            if($form) {
+                //dd($form);
+                $id = DB::table($this->actions['table'])->insertGetId($form);
+                $form['id'] = $id;
+                $this->last_id = $id;
+
+                // 6. 컨트롤러 메서드 호출
+                if ($controller = $this->isHook("hookStored")) {
+                    $controller->hookStored($this, $form);
+                }
+            }
+
+            // 입력데이터 초기화
+            $this->cancel();
+
+            // 팝업창 닫기
+            // $this->popupFormClose();
+
+            // Livewire Table을 갱신을 호출합니다.
+            // $this->emit('refeshTable');
+
+        } else {
+            $this->popupPermitOpen();
+        }
+
 
     }
+
+
+
+
+
 
     private function toData($rows)
     {
@@ -163,12 +214,13 @@ class WireTablePopupForm extends Component
     // 화면에 출력할 테이블 레이아웃을 지정합니다.
     private function getViewMainLayout()
     {
-        $view = "jiny-wire-table"."::table_popup_forms.table"; // 기본값
+        //$view = null;
+        $view = "jiny-wire-table"."::table_crud.create"; // 기본값
 
         // 사용자가 지정한 table 레이아웃이 있는 경우 적용!
-        if(isset($this->actions['view']['table'])) {
-            if($this->actions['view']['table']) {
-                $view = $this->actions['view']['table'];
+        if(isset($this->actions['view']['create'])) {
+            if($this->actions['view']['create']) {
+                $view = $this->actions['view']['create'];
             }
         }
 
@@ -235,94 +287,10 @@ class WireTablePopupForm extends Component
 
     public function create($value=null)
     {
-        $this->message = null;
 
-        // 신규 삽입을 위한 데이터 초기화
-        $this->formInitField();
-
-        // 삽입 권한이 있는지 확인
-        if($this->permit['create']) {
-            unset($this->actions['id']);
-
-            // 후킹:: 컨트롤러 메서드 호출
-            if ($controller = $this->isHook("hookCreating")) {
-                $form = $this->controller->hookCreating($this, $value);
-                if($form) {
-                    $this->forms = $form;
-                }
-            }
-
-            // 폼입력 팝업창 활성화
-            $this->popupFormOpen();
-
-        } else {
-            // 권한 없음 팝업을 활성화 합니다.
-            //dd("create 권환이 없습니다.");
-            $this->popupPermitOpen();
-        }
     }
 
-    public $last_id;
-    public function store()
-    {
-        $this->message = null;
 
-        if($this->permit['create']) {
-
-            // 1.유효성 검사
-            if (isset($this->actions['validate'])) {
-                $validator = Validator::make($this->forms, $this->actions['validate'])->validate();
-            }
-
-            // 2. 시간정보 생성
-            $this->forms['created_at'] = date("Y-m-d H:i:s");
-            $this->forms['updated_at'] = date("Y-m-d H:i:s");
-
-            // 3. 파일 업로드 체크 Trait
-            $this->fileUpload();
-
-
-            // 4. 컨트롤러 메서드 호출
-            // 신규 데이터 DB 삽입전에 호출되는 Hook
-            if ($controller = $this->isHook("hookStoring")) {
-                $_form = $this->controller->hookStoring($this, $this->forms);
-                if(is_array($_form)) {
-                    $form = $_form;
-                } else {
-                    // 훅 처리시 오류가 발생됨.
-                    // $this->message = $_form;
-                    return null;
-                }
-            } else {
-                $form = $this->forms;
-            }
-
-            // 5. 데이터 삽입
-            if($form) {
-                //dd($form);
-                $id = DB::table($this->actions['table'])->insertGetId($form);
-                $form['id'] = $id;
-                $this->last_id = $id;
-
-                // 6. 컨트롤러 메서드 호출
-                if ($controller = $this->isHook("hookStored")) {
-                    $controller->hookStored($this, $form);
-                }
-            }
-
-            // 입력데이터 초기화
-            $this->cancel();
-
-            // 팝업창 닫기
-            $this->popupFormClose();
-
-            // Livewire Table을 갱신을 호출합니다.
-            // $this->emit('refeshTable');
-
-        } else {
-            $this->popupPermitOpen();
-        }
-    }
 
 
 

@@ -46,10 +46,41 @@ class BaseController extends Controller
 
     }
 
+    ## Actions.json 파일을 우선으로 처리하고,
+    ## 값이 없는 경우 기본값으로 변경
+    protected function setReflectActions($actions, &$arr=null)
+    {
+        if(is_null($arr)) {
+            $arr = &$this->actions;
+        }
+
+        foreach($actions as $key => $value) {
+            if(is_array($value)) {
+                if(!isset($arr[$key])) {
+                    $arr[$key] = [];
+                }
+                //dump($arr[$key]);
+                $this->setReflectActions($actions[$key], $arr[$key]);
+            } else {
+                if(!isset($arr[$key])) {
+                    $arr[$key] = $value;
+                }
+            }
+        }
+    }
+
     // 생성버튼을 비활성화 합니다.
     protected function createDisable()
     {
         unset($this->actions['create']);
+    }
+
+    protected function createEnable($title="추가")
+    {
+        $this->actions['create']['enable'] = true;
+        $this->actions['create']['title'] = $title;
+
+        return $this;
     }
 
     protected function checkDeleteDisable()
@@ -73,25 +104,30 @@ class BaseController extends Controller
         $slug = explode('/', $uri);
         $_slug = [];
         foreach($slug as $key => $item) {
-            if($item[0] == "{") {
-                $param = substr($item, 1, strlen($item)-2);
-                $param = trim($param,'?');
-                //dump($param);
-                $this->actions['nesteds'] []= $param;
+            // root같은 경우 값이 없는 경우도 있음,
+            // 길이가 0보다 큰 경우에만 검사
+            if(strlen($item)>0) {
+                if($item[0] == "{") {
+                    $param = substr($item, 1, strlen($item)-2);
+                    $param = trim($param,'?');
+                    //dump($param);
+                    $this->actions['nesteds'] []= $param;
 
-                continue; //unset($slug[$key])
+                    continue; //unset($slug[$key])
+                }
+                $_slug []= $item;
             }
-            $_slug []= $item;
         }
 
-        //dd($this->actions['nesteds']);
 
         // resource 컨트롤러에서 ~/create 는 삭제.
         $last = count($_slug)-1;
-        //dd($_slug);
-        if($_slug[$last] == "create" ||  $_slug[$last] == "edit") {
-            unset($_slug[$last]);
+        if(isset($_slug[$last])) {
+            if($_slug[$last] == "create" ||  $_slug[$last] == "edit") {
+                unset($_slug[$last]);
+            }
         }
+
 
         $slugPath = implode("/",$_slug); // 다시 url 연결.
 

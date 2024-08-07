@@ -88,6 +88,7 @@ class LiveController extends BaseController
 
             ## 테이블 레이아웃을 읽어 옵니다.
             $view = $this->getViewFileLayout();
+            //dd($view);
             if (view()->exists($view)) {
                 $_data = [
                     'actions'=>$this->actions,
@@ -98,8 +99,9 @@ class LiveController extends BaseController
             }
 
             ## 테이블 레이아웃 없는 경우
-            return view($this->packageName."::errors.message",[
-                'message' => $view."를 읽어올수 없습니다."
+            return view($this->packageName."::errors.no_layout",[
+                'message' => $view."를 읽어올수 없습니다.",
+                'actions'=>$this->actions
             ]);
         }
 
@@ -130,18 +132,24 @@ class LiveController extends BaseController
     // 인덱스의 Layout view를 확인합니다.
     protected function getViewFileLayout()
     {
-        $view = $this->packageName."::layouts.table";
-        // 기본값
-        if($this->viewFileLayout) {
-            $view = $this->viewFileLayout;
-        }
+        //$view = $this->packageName."::layouts.table";
 
         // 사용자 레이아웃 우선설정
         if (isset($this->actions['view']['layout'])) {
-            $view = $this->actions['view']['layout'];
+            //$view = $this->actions['view']['layout'];
+            return $this->actions['view']['layout'];
         }
 
-        return $view;
+        // 기본값
+        if($this->viewFileLayout) {
+            // $view = $this->viewFileLayout;
+            return $this->viewFileLayout;
+        }
+
+
+
+        //return $view;
+        return $this->packageName."::layouts.table";
     }
 
     /**
@@ -274,70 +282,72 @@ class LiveController extends BaseController
 
     }
 
-    public function edit(Request $request, $id)
-    {
-        $this->checkRequestNesteds($request);
-        $this->checkRequestQuery($request);
+    // public function edit(Request $request, $id)
+    // {
+    //     $this->checkRequestNesteds($request);
+    //     $this->checkRequestQuery($request);
 
-        // 메뉴 설정
-        $user = Auth::user();
-        $this->setUserMenu($user);
+    //     // 메뉴 설정
+    //     $user = Auth::user();
+    //     $this->setUserMenu($user);
 
-        // 권한
-        $this->permitCheck();
-        if($this->permit['update']) {
-            // 마지막 값이, id로 간주합니다.
-            $keyId = array_key_last($this->actions['nesteds']);
-            $this->actions['id'] = $this->actions['nesteds'][$keyId];
+    //     // 권한
+    //     $this->permitCheck();
+    //     if($this->permit['update']) {
+    //         // 마지막 값이, id로 간주합니다.
+    //         $keyId = array_key_last($this->actions['nesteds']);
+    //         $this->actions['id'] = $this->actions['nesteds'][$keyId];
 
-            return view("jjiny-wire-table::edit",['actions'=>$this->actions]);
-        }
+    //         return view("jjiny-wire-table::edit",['actions'=>$this->actions]);
+    //     }
 
-        // 권한 접속 실패
-        return view("jiny-wire-table::error.permit",[
-            'actions'=>$this->actions,
-            'request'=>$request
-        ]);
-    }
-
-    public function update(Request $request, $id)
-    {
-        $this->checkRequestNesteds($request);
-        $this->checkRequestQuery($request);
-
-        // 권한
-        $this->permitCheck();
-        if($this->permit['update']) {
+    //     // 권한 접속 실패
+    //     return view("jiny-wire-table::error.permit",[
+    //         'actions'=>$this->actions,
+    //         'request'=>$request
+    //     ]);
+    // }
 
 
-        }
 
-        // 권한 접속 실패
-        return view("jiny-wire-table::error.permit",[
-            'actions'=>$this->actions,
-            'request'=>$request
-        ]);
-    }
+    // public function update(Request $request, $id)
+    // {
+    //     $this->checkRequestNesteds($request);
+    //     $this->checkRequestQuery($request);
 
-    public function destroy($id, Request $request)
-    {
-        $this->checkRequestNesteds($request);
-        $this->checkRequestQuery($request);
+    //     // 권한
+    //     $this->permitCheck();
+    //     if($this->permit['update']) {
 
-        // 권한
-        $this->permitCheck();
-        if($this->permit['delete']) {
-            // 마지막 값이, id로 간주합니다.
-            $keyId = array_key_last($this->actions['nesteds']);
-            $this->actions['id'] = $this->actions['nesteds'][$keyId];
-        }
 
-        // 권한 접속 실패
-        return view("jiny-wire-table::error.permit",[
-            'actions'=>$this->actions,
-            'request'=>$request
-        ]);
-    }
+    //     }
+
+    //     // 권한 접속 실패
+    //     return view("jiny-wire-table::error.permit",[
+    //         'actions'=>$this->actions,
+    //         'request'=>$request
+    //     ]);
+    // }
+
+    // public function destroy($id, Request $request)
+    // {
+    //     $this->checkRequestNesteds($request);
+    //     $this->checkRequestQuery($request);
+
+    //     // 권한
+    //     $this->permitCheck();
+    //     if($this->permit['delete']) {
+    //         // 마지막 값이, id로 간주합니다.
+    //         $keyId = array_key_last($this->actions['nesteds']);
+    //         $this->actions['id'] = $this->actions['nesteds'][$keyId];
+    //     }
+
+    //     // 권한 접속 실패
+    //     return view("jiny-wire-table::error.permit",[
+    //         'actions'=>$this->actions,
+    //         'request'=>$request
+    //     ]);
+    // }
 
     /**
      * delete 선택한 항목 삭제

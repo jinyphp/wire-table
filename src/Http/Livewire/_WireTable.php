@@ -6,20 +6,17 @@ use Illuminate\Routing\Route;
 use Livewire\Component;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+
 use Livewire\WithPagination;
 use Illuminate\Support\Facades\Storage;
 
-use Livewire\WithFileUploads;
-
 class WireTable extends Component
 {
-    use WithFileUploads;
     use WithPagination;
     use \Jiny\WireTable\Http\Trait\Hook;
     use \Jiny\WireTable\Http\Trait\Permit;
     use \Jiny\WireTable\Http\Trait\CheckDelete;
     use \Jiny\WireTable\Http\Trait\DataFetch;
-    use \Jiny\WireTable\Http\Trait\Upload;
 
     public $actions;
     public $paging = 10;
@@ -28,8 +25,9 @@ class WireTable extends Component
 
     // 추출된 데이터 목록 (array)
     public $data=[];
+    //public $_temp = [];
     public $table_columns=[];
-    public $_id;
+
 
     public function mount()
     {
@@ -47,6 +45,18 @@ class WireTable extends Component
             $this->paging = $this->actions['paging'];
         }
 
+        // 테이블 컬럼 정보읽기
+        /*
+        if(isset($this->actions['table']) && $this->actions['table']) {
+            $columns = DB::select("SHOW COLUMNS FROM ".$this->actions['table']);
+            foreach ($columns as $column) {
+                $this->table_columns []= $column;
+                //echo "Column: $column->Field, Type: $column->Type\n";
+            }
+        }
+        */
+
+
     }
 
 
@@ -55,6 +65,9 @@ class WireTable extends Component
      */
     public function render()
     {
+        // livewire 컴포넌트를 다른 Blade와 공유를 위한 인스턴스 저장
+        wireShare()->wire = $this;
+
         // 1. 데이터 테이블 체크
         if(isset($this->actions['table'])) {
             if($this->actions['table']) {
@@ -68,34 +81,28 @@ class WireTable extends Component
         }
 
 
-        // 2. 후킹_before :: 컨트롤러 메서드 호출
-        // DB 데이터를 조회하는 방법들을 변경하려고 할때 유용합니다.
+        // 2. 후킹 :: 컨트롤러 메서드 호출
         if ($controller = $this->isHook("HookIndexing")) {
-            $result = $this->controller->hookIndexing($this);
+            $result = $controller->HookIndexing($this);
             if($result) {
                 // 반환값이 있는 경우, 출력하고 이후동작을 중단함.
-                return view("jiny-wire-table::errors.message",[
-                    'message' => $result
-                ]);
+                return $result;
             }
         }
 
-
-        // 3. DB에서 데이터를 읽어 옵니다.
+        // 3. 데이터를 읽어 옵니다.
         $rows = $this->dataFetch($this->actions);
+
         $totalPages = $rows->lastPage();
         $currentPage = $rows->currentPage();
 
 
-        // 4. 후킹_after :: 읽어온 데이터를 별도로
-        // 추가 조작이 필요한 경우 동작 합니다. (단, 데이터 읽기가 성공한 경우)
+        // 4. 후크 :: 읽어온 데이터를 후작업 합니다.
         if($rows) {
             if ($controller = $this->isHook("HookIndexed")) {
-                $rows = $this->controller->hookIndexed($this, $rows);
-                if(is_array($rows) || is_object($rows)) {
-                    // 반환되는 Hook 값은, 배열 또는 객체값 이어야 합니다.
-                    // 만일 오류를 발생하고자 한다면, 다른 문자열 값을 출력합니다.
-                } else {
+                $rows = $controller->HookIndexed($this, $rows);
+
+                if(is_null($rows)) {
                     return view("jiny-wire-table::error.message",[
                         'message'=>"HookIndexed() 호출 반환값이 없습니다."
                     ]);
@@ -103,12 +110,50 @@ class WireTable extends Component
             }
         }
 
-        $this->toData($rows); // rows를 data 배열에 복사해 둡니다.
+
+        // 5. 내부함수 생성
+        // 팝업창 폼을 활성화 합니다.
+        $funcEditPopup = function ($item, $title)
+        {
+            // emit -> $this->dispatch('popupFormCreate');
+            $link = xLink($title)->setHref("javascript: void(0);");
+            $link->setAttribute("wire:click", "$"."emit('popupEdit','".$item->id."')");
+
+            if (isset($item->enable)) {
+                if($item->enable) {
+                    return $link;
+                } else {
+                    return xSpan($link)->style("text-decoration:line-through;");
+                }
+            }
+
+            return $link;
+        };
+
+        // 내부함수 생성
+        // form 페이지로 url을 이동합니다.
+        $rules = $this->actions;
+        $funcEditLink = function ($item, $title) use ($rules)
+        {
+            $link = ($title)->setHref(route($rules['routename'].".edit", $item->id));
+            if($item->enable) {
+                return $link;
+            } else {
+                return xSpan($link)->style("text-decoration:line-through;");
+            }
+            return $link;
+        };
 
         // 6. 출력 레이아아웃
         $view_layout = $this->getViewMainLayout();
+
+        $this->toData($rows);
+
+
         return view($view_layout,[
             'rows'=>$rows,
+            'popupEdit'=>$funcEditPopup,
+            'editLink'=>$funcEditLink,
             'totalPages'=>$totalPages,
             'currentPage'=>$currentPage
         ]);
@@ -137,12 +182,16 @@ class WireTable extends Component
         return $this->data;
     }
 
-    // 화면에 출력할 테이블 레이아웃을 지정합니다.
     private function getViewMainLayout()
     {
-        $view = "jiny-wire-table"."::wiretable.table"; // 기본값
+        $view = "jiny-wire-table::livewire.wiretable"; // 기본값
 
-        // 사용자가 지정한 table 레이아웃이 있는 경우 적용!
+        if(isset($this->actions['view']['main_layout'])) {
+            if($this->actions['view']['main_layout']) {
+                $view = $this->actions['view']['main_layout'];
+            }
+        }
+
         if(isset($this->actions['view']['table'])) {
             if($this->actions['view']['table']) {
                 $view = $this->actions['view']['table'];
@@ -154,8 +203,9 @@ class WireTable extends Component
     }
 
 
+
     /**
-     * Create Read Update Delete
+     *
      */
     /* ----- ----- ----- ----- ----- */
 
@@ -165,6 +215,22 @@ class WireTable extends Component
         // 페이지를 재갱신 합니다.
     }
 
+    public function edit($id)
+    {
+        //dd($id);
+        //$this->emit('popupEdit',$id);
+        $this->dispatch('popupFormEdit',$id);
+    }
+
+    public function create()
+    {
+        // WirePopupForm의 popupFormCreate를
+        // 호출할 수 있는 이벤트를 발생합니다.
+        dump("popupFormCreate");
+        $this->dispatch('popupFormCreate');
+    }
+
+
 
 
     /**
@@ -173,8 +239,8 @@ class WireTable extends Component
     public function hook($method, ...$args) { $this->call($method, $args); }
     public function call($method, ...$args)
     {
-        //dd($method);
-        if($controller = $this->isHook($method)) {
+        if(isset($this->actions['controller'])) {
+            $controller = $this->actions['controller']::getInstance($this);
             if(method_exists($controller, $method)) {
                 return $controller->$method($this, $args[0]);
             }
@@ -200,8 +266,6 @@ class WireTable extends Component
             if(isset($this->actions['request'][$key])) {
                 return $this->actions['request'][$key];
             }
-
-            return null;
         }
 
         return $this->actions['request'];

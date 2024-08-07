@@ -13,16 +13,27 @@ trait CheckDelete
     public $selected = [];
     public $selected_count = 0;
 
+
     // model.live로 selectedall 클릭시 호출됩니다.
     public function updatedSelectedall($value)
     {
         if($value) {
-            $this->selected = [];
+            $this->selected = []; // 초기화
+
+            // 전체 선택 체크, id값 지정
             foreach($this->ids as $i => $v) {
                 $this->selected[$i] = strval($v);
             }
+
         } else {
+            // 모든 선택 해제
             $this->selected = [];
+        }
+
+        // 선택된 true 갯수 확인
+        $this->selected_count = count($this->selected);
+        if($this->selected_count == 0) {
+            $this->popupCheckDeleteClose();
         }
     }
 
@@ -37,6 +48,9 @@ trait CheckDelete
 
         // 선택된 true 갯수 확인
         $this->selected_count = count($this->selected);
+        if($this->selected_count == 0) {
+            $this->popupCheckDeleteClose();
+        }
     }
 
 
@@ -86,7 +100,7 @@ trait CheckDelete
             // 1.컨트롤러 메서드 호출
             if ($controller = $this->isHook("hookCheckDeleting")) {
                 if(method_exists($controller, "hookCheckDeleting")) {
-                    $controller->hookCheckDeleting($this->selected);
+                    $controller->hookCheckDeleting($this, $this->selected);
                 }
             }
 
@@ -114,7 +128,7 @@ trait CheckDelete
             // 4. 컨트롤러 메서드 호출
             if ($controller = $this->isHook("hookCheckDeleted")) {
                 if(method_exists($controller, "hookCheckDeleted")) {
-                    $controller->hookCheckDeleted($this->selected);
+                    $controller->hookCheckDeleted($this, $this->selected);
                 }
             }
 

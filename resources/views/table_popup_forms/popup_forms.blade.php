@@ -1,4 +1,5 @@
-<x-wire-dialog-modal wire:model="popupForm" maxWidth="3xl">
+
+<x-wire-dialog-modal wire:model="popupForm" :maxWidth="$popupWindowWidth">
     <x-slot name="title">
         @if (isset($actions['id']))
             {{ __('자료 수정') }}

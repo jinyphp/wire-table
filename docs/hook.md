@@ -174,9 +174,20 @@ public function hookDeleted($wire, $row)
 
 
 ### 선택삭제
+선택해서 삭제하는 경우 호출됩니다.
 
 ```php
-public function hookCheckDeleting($selected)
+## 선택해서 삭제하는 경우 호출됩니다.
+public function hookCheckDeleting($wire,$selected)
+{
+
+}
+```
+
+
+```php
+## 선택해서 삭제하기 전에 호출됩니다.
+public function hookCheckDeleted($wire,$this->selected)
 {
 
 }

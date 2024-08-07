@@ -1,15 +1,19 @@
 <?php
+namespace Jiny\WireTable\Http\Trait;
+
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+
 /**
  * Upload를 처리합니다.
  */
-namespace Jiny\WireTable\Http\Trait;
-use Illuminate\Support\Facades\DB;
-
 trait Upload
 {
     public $upload_visible = "private";
     public $upload_path;
+    public $upload_move;
     public $upload = [];
+    //public $image;
 
     public function fileUpload($form=null, $path=null)
     {
@@ -23,6 +27,15 @@ trait Upload
         if($path) {
             $this->upload_path = $path;
         }
+
+        // 이미지 이동 경로
+        if(!$this->upload_move) {
+            if(isset($this->actions['upload']['move'])) {
+                $this->upload_move = $this->actions['upload']['move'];
+            }
+        }
+
+
 
         $this->formFileCheck($form);
 
@@ -42,15 +55,41 @@ trait Upload
 
     private function formFileCheck($form, $keyname = null)
     {
+        // 업로드할 경로 분석
+        $upload_path = $this->uploadPath();
+
         foreach($form as $key => $item) {
             if($this->checkTempUpload($item)) {
-                // 업로드한 파일
-                $upload_path = $this->uploadPath();
-                $filename = $item->store($upload_path);
+                // 임시파일 저장 및 업로드
+                $filename = "/".$item->store($upload_path);
+
+                // 이미지 이동 처리
+                if($this->upload_move) {
+
+                    if(Storage::exists($filename)) {
+                        $sourcePath = storage_path('app'.$filename);
+                        $destinationPath = resource_path("/www");
+                        $destinationPath .= "/".$this->upload_move;
+
+                        if(!is_dir($destinationPath.$upload_path)) {
+                            mkdir($destinationPath.$upload_path,777,true);
+                        }
+
+                        //dump($sourcePath);
+                        //dd($destinationPath.$filename);
+
+                        if (rename($sourcePath, $destinationPath.$filename)) {
+                            $filename = $this->upload_move.$filename;
+                        }
+                    }
+
+                }
+
                 $this->upload[$key] = $filename;
             }
 
             if(is_array($item)) {
+                // 재귀호출
                 $this->formFileCheck($item, $key);
             }
         }
@@ -67,13 +106,15 @@ trait Upload
     }
 
 
+    ## 업로드 파일은 /storage/app/upload 안에 위치합니다.
+    ## upload 키워드로 라우트로 이미지를 처리합니다.
     private function uploadPath()
     {
         // 매개변수로 업로드 경로가 지정된경우
         if($this->upload_path) {
             //return "/upload".$this->upload_path;
             $path = ltrim($this->upload_path,'/');
-            return "/".$path;
+            return "/upload".$path;
         }
 
         // Actions에서 업로드 경로가 지정된 경우
