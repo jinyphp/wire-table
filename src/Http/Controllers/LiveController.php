@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
-
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Auth;
 
 use Jiny\WireTable\Http\Controllers\BaseController;
@@ -19,6 +19,9 @@ class LiveController extends BaseController
     protected $viewFileItem;
     protected $viewFileTitle;
     protected $viewFileForms;
+
+    protected $slot;
+    protected $theme;
 
 
     protected $packageName = "jiny-wire-table";
@@ -118,39 +121,129 @@ class LiveController extends BaseController
 
     protected function setViewFileTable()
     {
+        if(isset($this->actions['view']['table'])) {
+            return $this->actions['view']['table'];
+        }
+
         // 사용자 테이블이 미설정 되어 있는 경우
-        if (!isset($this->actions['view']['table'])) {
-            if($this->viewFileTable) {
-                $this->actions['view']['table'] = $this->viewFileTable;
+        if($this->viewFileTable) {
+            $this->actions['view']['table'] = $this->viewFileTable;
+        }
+
+        return "jiny-wire-table::table_popup_forms.table";
+    }
+
+
+    ## 인덱스의
+    ## Layout view를 확인합니다.
+    protected function getViewFileLayout()
+    {
+        // 우선순위1
+        // actions 설정값
+        if (isset($this->actions['view']['layout'])) {
+            $viewFile = $this->actions['view']['layout'];
+            if($result = $this->isExistView($viewFile)) {
+                return $result;
+            }
+
+            // 테마 파일
+            if($result = $this->inThemeView($viewFile)) {
+                return $result;
+            }
+
+            if(View::exists($viewFile)) {
+                return $viewFile;
             }
         }
 
-        return $this->actions['view']['table'];
-    }
-
-
-    // 인덱스의 Layout view를 확인합니다.
-    protected function getViewFileLayout()
-    {
-        //$view = $this->packageName."::layouts.table";
-
-        // 사용자 레이아웃 우선설정
-        if (isset($this->actions['view']['layout'])) {
-            //$view = $this->actions['view']['layout'];
-            return $this->actions['view']['layout'];
-        }
-
-        // 기본값
+        // 우선순위2
+        // 컨트롤러에서 설정한 값이 있는 경우
         if($this->viewFileLayout) {
-            // $view = $this->viewFileLayout;
-            return $this->viewFileLayout;
+            $viewFile = $this->viewFileLayout;
+            if($result = $this->isExistView($viewFile)) {
+                return $result;
+            }
+
+            // 테마 파일
+            if($result = $this->inThemeView($viewFile)) {
+                return $result;
+            }
+
+            if(View::exists($viewFile)) {
+                return $viewFile;
+            }
         }
 
 
 
-        //return $view;
-        return $this->packageName."::layouts.table";
     }
+
+    private function inThemeView($viewFile)
+    {
+        // 함수 중복 수행을 방지하기 위하여
+        if(!$this->theme) {
+            $theme = trim(xTheme()->getName(),'"');
+            $theme = str_replace('/','.',$theme);
+            $this->theme = $theme;
+        }
+
+        $theme = $this->theme;
+        if($theme) {
+            // 테마 리소스가 있는 경우
+            if (View::exists("theme::".$theme.".".$viewFile)) {
+                return "theme::".$theme.".".$viewFile;
+            }
+        }
+    }
+
+    private function isExistView($viewFile)
+    {
+
+        // 패키지 경로가 포함됨
+        // 페키지 경로를 모두 포함해서 검사함
+        if (strpos($viewFile, '::') !== false) {
+            if (View::exists($viewFile)) {
+                return $viewFile;
+            }
+        }
+
+        if($viewFile = $this->inSlotView($viewFile)) {
+            return $viewFile;
+        }
+
+        return false;
+    }
+
+    // 슬롯안에 뷰가 있는지 검사
+    private function inSlotView($viewFile)
+    {
+        $prefix = "www";
+
+        if(!$this->slot) {
+            // www_slot() 함수 중복 수행을 방지하기 위하여
+            // 프로퍼티에 값 임시 저장
+            $this->slot = $slot = www_slot();
+        }
+
+        $slot = $this->slot;
+
+        // 페키지 경로가 없는 겨우에는 slot에서 검색
+        // 먼저 슬롯 안에 있는지 검사
+        if($slot) {
+            if(View::exists($prefix."::".$slot.".".$viewFile)) {
+                return $prefix."::".$slot.".".$viewFile;
+            }
+        }
+        // slot에 없는 경우 상위 www 공용안에 있는지 검사
+        else {
+            if(View::exists($prefix."::".$viewFile)) {
+                return $prefix."::".$viewFile;
+            }
+        }
+
+        return false;
+    }
+
 
     /**
      * 컨트롤러에 테마를 설정합니다.
