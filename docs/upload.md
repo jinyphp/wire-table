@@ -58,3 +58,14 @@ $this->actions['upload']['move'] = "/경로위치";
 ```
 > 경로의 기준위치는 `resources/www`하위에 복사됩니다.
 
+
+
+## 활용예제
+
+이미지를 storage/app 에 파일을 올린 후에 지정한 경로로 이동을 합니다.
+
+```php
+$this->upload_path = "/"; //"/upload";
+$this->upload_move = "/images/widgets/".$this->filename; // 슬롯 안쪽으로 이동
+$this->fileUpload($this->forms, $this->upload_path);
+```

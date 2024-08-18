@@ -68,8 +68,11 @@ trait Upload
 
                     if(Storage::exists($filename)) {
                         $sourcePath = storage_path('app'.$filename);
+
+                        // Slot 리소스 이동
                         $destinationPath = resource_path("/www");
-                        $destinationPath .= "/".$this->upload_move;
+                        $destinationPath .= DIRECTORY_SEPARATOR.www_slot();
+                        $destinationPath .= DIRECTORY_SEPARATOR.ltrim($this->upload_move,'/');
 
                         if(!is_dir($destinationPath.$upload_path)) {
                             mkdir($destinationPath.$upload_path,777,true);
@@ -114,7 +117,8 @@ trait Upload
         if($this->upload_path) {
             //return "/upload".$this->upload_path;
             $path = ltrim($this->upload_path,'/');
-            return "/upload".$path;
+            return "/".$path;
+            //return "/upload".$path;
         }
 
         // Actions에서 업로드 경로가 지정된 경우
