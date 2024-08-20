@@ -134,30 +134,35 @@ class LiveController extends BaseController
     }
 
 
-    ## 인덱스의
-    ## Layout view를 확인합니다.
-    protected function getViewFileLayout()
+    /**
+     * 인덱스 메소드의 우선순위 view를 확인합니다.
+     * 1. actions -> 절대경로 -> slot경로 -> www:: -> theme -> resources/views
+     * 2. viewFileLayout 프로퍼티 ->
+     */
+    protected function getViewFileLayout($default=null)
     {
-        // 우선순위1
-        // actions 설정값
+        // 우선순위1 : actions 설정값
         if (isset($this->actions['view']['layout'])) {
+
+            // 1-1:
             $viewFile = $this->actions['view']['layout'];
             if($result = $this->isExistView($viewFile)) {
                 return $result;
             }
 
-            // 테마 파일
+            // 1-2: 테마 파일
             if($result = $this->inThemeView($viewFile)) {
                 return $result;
             }
 
+            // 1-3: resources/views
             if(View::exists($viewFile)) {
                 return $viewFile;
             }
         }
 
-        // 우선순위2
-        // 컨트롤러에서 설정한 값이 있는 경우
+
+        // 우선순위2 : 컨트롤러에서 설정한 값이 있는 경우
         if($this->viewFileLayout) {
             $viewFile = $this->viewFileLayout;
             if($result = $this->isExistView($viewFile)) {
@@ -176,6 +181,11 @@ class LiveController extends BaseController
 
 
 
+        if($default) {
+            return $default;
+        }
+
+        return false;
     }
 
     private function inThemeView($viewFile)
