@@ -186,3 +186,32 @@ if(!function_exists("table_count")) {
     }
 }
 
+
+// --- Dashboard
+function table_count($tablename,$where=[]) {
+    $db = DB::table($tablename);
+    /*
+    ->where('created_at',">", date("Y-m-d 00:00:00"))
+    */
+    return $db->count();
+}
+
+
+function table_count_today($tablename,$where=[]) {
+    $db = DB::table($tablename);
+    $db->where('created_at',">", date("Y-m-d 00:00:00"));
+    return $db->count();
+}
+
+
+function table_top5($tablename,$where=[]) {
+    $db = DB::table($tablename);
+    return $db->limit(5)->get();
+}
+
+// 테이븡의 데이터를 반환합니다.
+function table_rows($tablename) {
+    $db = DB::table($tablename);
+    return $db->get();
+}
+
