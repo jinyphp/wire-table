@@ -154,7 +154,14 @@ class BaseController extends Controller
     private function readJsonAction($path)
     {
         $filename = $path.DIRECTORY_SEPARATOR;
-        $filename .= str_replace("/","_",$this->actions['route']['uri']).".json";
+        //$filename .= str_replace("/","_",$this->actions['route']['uri']).".json";
+        $uri = $this->actions['route']['uri'];
+        $uri = rtrim($uri, '/');
+        $uri = str_replace('/', DIRECTORY_SEPARATOR, $uri);
+        $filename .= $uri.".json";
+
+        //dd($filename);
+
         if (file_exists($filename)) {
             $json = file_get_contents($filename);
             return json_decode($json, true);

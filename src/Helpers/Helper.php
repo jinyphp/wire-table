@@ -178,7 +178,7 @@ function xColumnLink($title, $href) {
  * Table helpers
  */
 ## enable이 활성화된 rows의 갯수를 반환합니다.
-if(!function_exists("table_count")) {
+if(!function_exists("table_enable_count")) {
     function table_enable_count($tablename,$where=[]) {
         $db = DB::table($tablename);
         $db->where('enable',1);

@@ -23,6 +23,10 @@ class LiveController extends BaseController
     protected $slot;
     protected $theme;
 
+    // view에게 추가로 넘겨주는 데이터
+    protected $params = [];
+
+
 
     protected $packageName = "jiny-wire-table";
     use \Jiny\WireTable\Http\Trait\Permit;
@@ -91,19 +95,23 @@ class LiveController extends BaseController
 
             ## 테이블 레이아웃을 읽어 옵니다.
             $view = $this->getViewFileLayout();
-            //dd($view);
-            if (view()->exists($view)) {
-                $_data = [
-                    'actions'=>$this->actions,
-                    'nested'=>$this->nested,
-                    'request'=>$request
-                ];
-                return view($view,$_data);
+            if($view) {
+                if (view()->exists($view)) {
+
+                    $_data = $this->mergeParams(['request'=>$request]);
+                    return view($view,$_data);
+                }
+
+                ## 테이블 레이아웃 없는 경우
+                return view($this->packageName."::errors.no_layout",[
+                    'message' => "지정한 ".$view."를 읽어올수 없습니다.",
+                    'actions'=>$this->actions
+                ]);
             }
 
             ## 테이블 레이아웃 없는 경우
             return view($this->packageName."::errors.no_layout",[
-                'message' => $view."를 읽어올수 없습니다.",
+                'message' => "기본 Layout view가 지정되어 있지 않습니다.",
                 'actions'=>$this->actions
             ]);
         }
@@ -116,6 +124,20 @@ class LiveController extends BaseController
             'actions'=>$this->actions,
             'request'=>$request
         ]);
+    }
+
+
+    private function mergeParams($data=[])
+    {
+        // 인자값 병합
+        foreach($data as $key => $value) {
+            $this->params[$key] = $value;
+        }
+
+        $this->params['actions'] = $this->actions;
+        $this->params['nested'] = $this->nested;
+
+        return $this->params;
     }
 
 
@@ -161,26 +183,28 @@ class LiveController extends BaseController
             }
         }
 
-
         // 우선순위2 : 컨트롤러에서 설정한 값이 있는 경우
         if($this->viewFileLayout) {
+
+            // 2-1:
             $viewFile = $this->viewFileLayout;
             if($result = $this->isExistView($viewFile)) {
                 return $result;
             }
 
-            // 테마 파일
+            // 2-2: 테마 파일
             if($result = $this->inThemeView($viewFile)) {
                 return $result;
             }
 
+            // 2-3:
             if(View::exists($viewFile)) {
                 return $viewFile;
             }
         }
 
 
-
+        // 3
         if($default) {
             return $default;
         }

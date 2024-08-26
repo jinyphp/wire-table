@@ -123,7 +123,9 @@ trait Upload
 
         // Actions에서 업로드 경로가 지정된 경우
         if(isset($this->actions['upload']['path'])) {
-            return "/upload".$this->actions['upload']['path'];
+            $path = ltrim($this->actions['upload']['path'],'/');
+            return "/".$path;
+            //return "/upload".$this->actions['upload']['path'];
         }
 
         // 기본 업로드 경로

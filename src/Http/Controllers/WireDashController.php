@@ -37,6 +37,9 @@ class WireDashController extends LiveController
      */
     public function index(Request $request)
     {
+        return parent::index($request);
+
+        /*
         // 1.IP확인
         $ipAddress = $request->ip();
         $this->actions['request']['ip'] = $ipAddress;
@@ -90,5 +93,6 @@ class WireDashController extends LiveController
             'actions'=>$this->actions,
             'request'=>$request
         ]);
+        */
     }
 }
