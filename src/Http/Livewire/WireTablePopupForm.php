@@ -19,7 +19,7 @@ class WireTablePopupForm extends Component
     use \Jiny\WireTable\Http\Trait\Permit;
     use \Jiny\WireTable\Http\Trait\CheckDelete;
     use \Jiny\WireTable\Http\Trait\DataFetch;
-    use \Jiny\WireTable\Http\Trait\Upload;
+    use \Jiny\WireTable\Http\Trait\UploadSlot;
 
     public $actions;
     public $paging = 10;
@@ -519,6 +519,8 @@ class WireTablePopupForm extends Component
 
             // 입력데이터 초기화
             $this->cancel();
+            unset($this->actions['id']);
+
 
             // 팝업창 닫기
             $this->popupFormClose();

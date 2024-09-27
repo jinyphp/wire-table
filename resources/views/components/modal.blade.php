@@ -25,7 +25,7 @@ $maxWidth = [
     x-show="show"
     id="{{ $id }}"
     class="jetstream-modal fixed inset-0 overflow-y-auto px-4 py-6 sm:px-0 z-50"
-    style="display: none;z-index:10000;"
+    style="display: none;z-index:20000;"
 >
     <div x-show="show"
         class="fixed inset-0 transform transition-all"

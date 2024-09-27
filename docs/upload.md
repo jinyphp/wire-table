@@ -1,6 +1,12 @@
 # 이미지 파일 업로드
 `wire-table`을 이용하여 이미지등과 같은 파일을 업로드 할 수 있습니다.
 
+## 컨트롤러에서 설정
+```php
+// 업로드후 해당경로로 파일 이동
+$this->setUploadAfterMoveTo("/images/flag");
+```
+
 ## 입력폼 설정
 
 ```php

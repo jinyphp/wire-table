@@ -10,7 +10,8 @@ class BaseController extends Controller
 {
     // 리소스 저장경로
     const PATH = "actions";
-    protected $actions = [];
+    //protected $actions = [];
+    public $actions = [];
 
     public function __construct()
     {
@@ -205,5 +206,35 @@ class BaseController extends Controller
         return $this;
     }
 
+    protected function setUploadAfterMoveTo($path)
+    {
+        $this->actions['upload']['move'] = $path;
+        $this->actions['upload']['path'] = "/";
+
+        return $this;
+    }
+
+    /**
+     * 레이아웃을 설정합니다.
+     */
+    protected function setLayout($path, $default=null)
+    {
+        $this->actions['view']['layout'] = $path;
+        //Action()->set('view.layout', $path);
+
+        // 기본값
+        if($default) {
+            $this->actions['view']['_layout'] = $default;
+        }
+
+        return $this;
+    }
+
+    protected function setLayoutDefault($default)
+    {
+        $this->actions['view']['_layout'] = $default;
+
+        return $this;
+    }
 
 }

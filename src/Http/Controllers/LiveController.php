@@ -13,7 +13,7 @@ use Jiny\WireTable\Http\Controllers\BaseController;
 class LiveController extends BaseController
 {
     // 화면처리
-    protected $viewFileLayout;
+    public $viewFileLayout;
     protected $viewFileTable;
     protected $viewFileList;
     protected $viewFileItem;
@@ -99,7 +99,7 @@ class LiveController extends BaseController
                 if (view()->exists($view)) {
 
                     $_data = $this->mergeParams(['request'=>$request]);
-                    return view($view,$_data);
+                    return view($view, $_data);
                 }
 
                 ## 테이블 레이아웃 없는 경우
@@ -165,118 +165,38 @@ class LiveController extends BaseController
     {
         // 우선순위1 : actions 설정값
         if (isset($this->actions['view']['layout'])) {
-
-            // 1-1:
-            $viewFile = $this->actions['view']['layout'];
-            if($result = $this->isExistView($viewFile)) {
-                return $result;
-            }
-
-            // 1-2: 테마 파일
-            if($result = $this->inThemeView($viewFile)) {
-                return $result;
-            }
-
-            // 1-3: resources/views
-            if(View::exists($viewFile)) {
-                return $viewFile;
+            $aViewLayout = $this->actions['view']['layout'];
+            if ($aViewLayout) {
+                if($res = siteViewName($aViewLayout)){
+                    return $res;
+                }
             }
         }
 
-        // 우선순위2 : 컨트롤러에서 설정한 값이 있는 경우
-        if($this->viewFileLayout) {
 
+        // 우선순위2 :
+        // 컨트롤러 코드에서 설정한 값이 있는 경우
+        if($this->viewFileLayout) {
             // 2-1:
             $viewFile = $this->viewFileLayout;
-            if($result = $this->isExistView($viewFile)) {
-                return $result;
-            }
-
-            // 2-2: 테마 파일
-            if($result = $this->inThemeView($viewFile)) {
-                return $result;
-            }
-
-            // 2-3:
-            if(View::exists($viewFile)) {
-                return $viewFile;
+            if($res = siteViewName($viewFile)){
+                return $res;
             }
         }
 
 
-        // 3
+        // 우선순위3 :
         if($default) {
-            return $default;
+            $this->actions['view']['_layout'] = $default;
         }
+        if(isset($this->actions['view']['_layout'])) {
+            return $this->actions['view']['_layout'];
+        }
+
 
         return false;
     }
 
-    private function inThemeView($viewFile)
-    {
-        // 함수 중복 수행을 방지하기 위하여
-        if(!$this->theme) {
-            $theme = trim(xTheme()->getName(),'"');
-            $theme = str_replace('/','.',$theme);
-            $this->theme = $theme;
-        }
-
-        $theme = $this->theme;
-        if($theme) {
-            // 테마 리소스가 있는 경우
-            if (View::exists("theme::".$theme.".".$viewFile)) {
-                return "theme::".$theme.".".$viewFile;
-            }
-        }
-    }
-
-    private function isExistView($viewFile)
-    {
-
-        // 패키지 경로가 포함됨
-        // 페키지 경로를 모두 포함해서 검사함
-        if (strpos($viewFile, '::') !== false) {
-            if (View::exists($viewFile)) {
-                return $viewFile;
-            }
-        }
-
-        if($viewFile = $this->inSlotView($viewFile)) {
-            return $viewFile;
-        }
-
-        return false;
-    }
-
-    // 슬롯안에 뷰가 있는지 검사
-    private function inSlotView($viewFile)
-    {
-        $prefix = "www";
-
-        if(!$this->slot) {
-            // www_slot() 함수 중복 수행을 방지하기 위하여
-            // 프로퍼티에 값 임시 저장
-            $this->slot = $slot = www_slot();
-        }
-
-        $slot = $this->slot;
-
-        // 페키지 경로가 없는 겨우에는 slot에서 검색
-        // 먼저 슬롯 안에 있는지 검사
-        if($slot) {
-            if(View::exists($prefix."::".$slot.".".$viewFile)) {
-                return $prefix."::".$slot.".".$viewFile;
-            }
-        }
-        // slot에 없는 경우 상위 www 공용안에 있는지 검사
-        else {
-            if(View::exists($prefix."::".$viewFile)) {
-                return $prefix."::".$viewFile;
-            }
-        }
-
-        return false;
-    }
 
 
     /**

@@ -5,15 +5,14 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 /**
- * Upload를 처리합니다.
+ * www의 Slot 안쪽으로 파일을 Upload 합니다.
  */
-trait Upload
+trait UploadSlot
 {
     public $upload_visible = "private";
     public $upload_path;
     public $upload_move;
     public $upload = [];
-    //public $image;
 
     public function fileUpload($form=null, $path=null)
     {
@@ -35,7 +34,7 @@ trait Upload
             }
         }
 
-
+        //dd($this->upload_move);
 
         $this->formFileCheck($form);
 
@@ -52,6 +51,15 @@ trait Upload
 
     }
 
+    private function resourcePath()
+    {
+        // Slot 리소스 이동
+        $destinationPath = resource_path("/www");
+        $destinationPath .= DIRECTORY_SEPARATOR.www_slot();
+        $destinationPath .= DIRECTORY_SEPARATOR.trim($this->upload_move,'/');
+
+        return $destinationPath;
+    }
 
     private function formFileCheck($form, $keyname = null)
     {
@@ -68,33 +76,30 @@ trait Upload
 
                     if(Storage::exists($filename)) {
                         $sourcePath = storage_path('app'.$filename);
+                        $destinationPath = $this->resourcePath();
 
-                        // Slot 리소스 이동
-                        $destinationPath = resource_path("/www");
-                        $destinationPath .= DIRECTORY_SEPARATOR.www_slot();
-                        $destinationPath .= DIRECTORY_SEPARATOR.ltrim($this->upload_move,'/');
-
-                        // dd($destinationPath.$upload_path);
-                        // if(!is_dir($destinationPath.$upload_path)) {
-                        //     mkdir($destinationPath.$upload_path,777,true);
-                        // }
-
+                        //dd($destinationPath);
                         if(!is_dir($destinationPath)) {
-                            mkdir($destinationPath,777,true);
+                            mkdir($destinationPath,0777,true);
                         }
 
-                        //dump($sourcePath);
-                        //dd($destinationPath.$filename);
+                        //dump($destinationPath);
+                        //dump($this->upload_move);
 
                         if (rename($sourcePath, $destinationPath.$filename)) {
-                            //$filename = $this->upload_move.$filename;
                             $filename = rtrim($this->upload_move,'/').$filename;
                         }
+
+
+                        //dd($filename);
+
+
                     }
 
                 }
 
-                $this->upload[$key] = $filename;
+                $filename = trim($filename,'/');
+                $this->upload[$key] = "/".$filename;
             }
 
             if(is_array($item)) {
@@ -104,6 +109,9 @@ trait Upload
         }
     }
 
+    /**
+     * form 입력데이터에서 upload 객체가 있는지 판단합니다.
+     */
     private function checkTempUpload($item)
     {
         //if($item instanceof \Livewire\Features\SupportFileUploads\TemporaryUploadedFile) {
