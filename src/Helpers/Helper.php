@@ -204,8 +204,14 @@ function table_count_today($tablename,$where=[]) {
 }
 
 
-function table_top5($tablename,$where=[]) {
+function table_top5($tablename, $where=[]) {
     $db = DB::table($tablename);
+
+    //dd($where);
+    foreach($where as $k => $v) {
+        $db->where($k, $v);
+    }
+
     return $db->limit(5)->get();
 }
 

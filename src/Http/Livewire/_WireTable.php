@@ -47,8 +47,8 @@ class WireTable extends Component
 
         // 테이블 컬럼 정보읽기
         /*
-        if(isset($this->actions['table']) && $this->actions['table']) {
-            $columns = DB::select("SHOW COLUMNS FROM ".$this->actions['table']);
+        if(isset($this->actions['table']['name']) && $this->actions['table']['name']) {
+            $columns = DB::select("SHOW COLUMNS FROM ".$this->actions['table']['name']);
             foreach ($columns as $column) {
                 $this->table_columns []= $column;
                 //echo "Column: $column->Field, Type: $column->Type\n";
@@ -69,9 +69,9 @@ class WireTable extends Component
         wireShare()->wire = $this;
 
         // 1. 데이터 테이블 체크
-        if(isset($this->actions['table'])) {
-            if($this->actions['table']) {
-                $this->setTable($this->actions['table']);
+        if(isset($this->actions['table']['name'])) {
+            if($this->actions['table']['name']) {
+                $this->setTable($this->actions['table']['name']);
             }
         } else {
             // 테이블명이 없는 경우

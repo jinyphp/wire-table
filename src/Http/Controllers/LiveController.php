@@ -13,19 +13,18 @@ use Jiny\WireTable\Http\Controllers\BaseController;
 class LiveController extends BaseController
 {
     // 화면처리
-    public $viewFileLayout;
-    protected $viewFileTable;
-    protected $viewFileList;
-    protected $viewFileItem;
-    protected $viewFileTitle;
-    protected $viewFileForms;
+    public $viewFileLayout, $viewLayout;
+    protected $viewFileTable, $viewTable;
+    protected $viewFileList, $viewList;
+    protected $viewFileItem, $viewItem;
+    protected $viewFileTitle, $viewTitle;
+    protected $viewFileForms, $viewForms;
 
     protected $slot;
     protected $theme;
 
     // view에게 추가로 넘겨주는 데이터
     protected $params = [];
-
 
 
     protected $packageName = "jiny-wire-table";
@@ -56,6 +55,15 @@ class LiveController extends BaseController
      */
     public function index(Request $request)
     {
+        // // 회원정보 및 slot
+        // $auth = Auth::user();
+        // if($auth) {
+        //     $user = user()->set($auth); // 싱글턴 객체
+        //     //Slot()->reload();
+        // }
+
+
+
         // IP확인
         $ipAddress = $request->ip();
         $this->actions['request']['ip'] = $ipAddress;
@@ -79,6 +87,7 @@ class LiveController extends BaseController
 
                     // 레이아웃 적용을 테마로 설정합니다.
                     $this->viewFileLayout = $this->packageName."::theme.layout";
+                    $this->viewLayout = $this->actions['theme'];
                 }
             }
         }
@@ -99,6 +108,7 @@ class LiveController extends BaseController
                 if (view()->exists($view)) {
 
                     $_data = $this->mergeParams(['request'=>$request]);
+                    //dd($_data);
                     return view($view, $_data);
                 }
 
@@ -109,11 +119,13 @@ class LiveController extends BaseController
                 ]);
             }
 
-            ## 테이블 레이아웃 없는 경우
-            return view($this->packageName."::errors.no_layout",[
-                'message' => "기본 Layout view가 지정되어 있지 않습니다.",
-                'actions'=>$this->actions
-            ]);
+            ## 레이아웃 없는 경우
+            return false;
+
+            // return view($this->packageName."::errors.no_layout",[
+            //     'message' => "기본 Layout view가 지정되어 있지 않습니다.",
+            //     'actions'=>$this->actions
+            // ]);
         }
 
 
@@ -143,14 +155,18 @@ class LiveController extends BaseController
 
     protected function setViewFileTable()
     {
+        if($this->viewTable) {
+            return $this->viewTable;
+        }
+
         if(isset($this->actions['view']['table'])) {
             return $this->actions['view']['table'];
         }
 
         // 사용자 테이블이 미설정 되어 있는 경우
-        if($this->viewFileTable) {
-            $this->actions['view']['table'] = $this->viewFileTable;
-        }
+        // if($this->viewFileTable) {
+        //     $this->actions['view']['table'] = $this->viewFileTable;
+        // }
 
         return "jiny-wire-table::table_popup_forms.table";
     }
@@ -163,6 +179,13 @@ class LiveController extends BaseController
      */
     protected function getViewFileLayout($default=null)
     {
+        if($this->viewLayout) {
+            //return $this->viewLayout;
+            if($res = siteViewName($this->viewLayout)){
+                return $res;
+            }
+        }
+
         // 우선순위1 : actions 설정값
         if (isset($this->actions['view']['layout'])) {
             $aViewLayout = $this->actions['view']['layout'];

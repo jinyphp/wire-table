@@ -65,9 +65,9 @@ class WireTableCreate extends Component
     public function render()
     {
         // 1. 데이터 테이블 체크
-        if(isset($this->actions['table'])) {
-            if($this->actions['table']) {
-                $this->setTable($this->actions['table']);
+        if(isset($this->actions['table']['name'])) {
+            if($this->actions['table']['name']) {
+                $this->setTable($this->actions['table']['name']);
             }
         } else {
             // 테이블명이 없는 경우
@@ -158,7 +158,7 @@ class WireTableCreate extends Component
             // 5. 데이터 삽입
             if($form) {
                 //dd($form);
-                $id = DB::table($this->actions['table'])->insertGetId($form);
+                $id = DB::table($this->actions['table']['name'])->insertGetId($form);
                 $form['id'] = $id;
                 $this->last_id = $id;
 
@@ -323,7 +323,7 @@ class WireTableCreate extends Component
             }
 
             if (isset($this->actions['id'])) {
-                $row = DB::table($this->actions['table'])->find($this->actions['id']);
+                $row = DB::table($this->actions['table']['name'])->find($this->actions['id']);
                 $this->setForm($row);
             }
 
@@ -366,7 +366,7 @@ class WireTableCreate extends Component
     {
         if($this->permit['update']) {
             // step1. 수정전, 원본 데이터 읽기
-            $origin = DB::table($this->actions['table'])->find($this->actions['id']);
+            $origin = DB::table($this->actions['table']['name'])->find($this->actions['id']);
             foreach ($origin as $key => $value) {
                 $this->forms_old[$key] = $value;
             }
@@ -394,7 +394,7 @@ class WireTableCreate extends Component
 
             // uploadfile 필드 조회
             /*
-            $fields = DB::table('uploadfile')->where('table', $this->actions['table'])->get();
+            $fields = DB::table('uploadfile')->where('table', $this->actions['table']['name'])->get();
             foreach($fields as $item) {
                 $key = $item->field; // 업로드 필드명
                 if($origin->$key != $this->forms[$key]) {
@@ -410,7 +410,7 @@ class WireTableCreate extends Component
                 //dd($this->forms);
                 $this->forms['updated_at'] = date("Y-m-d H:i:s");
 
-                DB::table($this->actions['table'])
+                DB::table($this->actions['table']['name'])
                     ->where('id', $this->actions['id'])
                     ->update($this->forms);
             }
@@ -453,7 +453,7 @@ class WireTableCreate extends Component
         $this->popupDelete = false;
 
         if($this->permit['delete']) {
-            $row = DB::table($this->actions['table'])->find($this->actions['id']);
+            $row = DB::table($this->actions['table']['name'])->find($this->actions['id']);
             $form = [];
             foreach($row as $key => $value) {
                 $form[$key] = $value;
@@ -466,7 +466,7 @@ class WireTableCreate extends Component
 
             // uploadfile 필드 조회
             /*
-            $fields = DB::table('uploadfile')->where('table', $this->actions['table'])->get();
+            $fields = DB::table('uploadfile')->where('table', $this->actions['table']['name'])->get();
             foreach($fields as $item) {
                 $key = $item->field; // 업로드 필드명
                 if (isset($row->$key)) {
@@ -476,7 +476,7 @@ class WireTableCreate extends Component
             */
 
             // 데이터 삭제
-            DB::table($this->actions['table'])
+            DB::table($this->actions['table']['name'])
                 ->where('id', $this->actions['id'])
                 ->delete();
 

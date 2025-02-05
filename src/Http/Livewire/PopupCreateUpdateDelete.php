@@ -127,7 +127,7 @@ class PopupCreateUpdateDelete extends Component
         // 5. 데이터 삽입
         if(count($form)>0) { // 삽입된 데이터가 있는 경우에만 처리
 
-            $id = DB::table($this->actions['table'])->insertGetId($form);
+            $id = DB::table($this->actions['table']['name'])->insertGetId($form);
             $form['id'] = $id;
             $this->last_id = $id;
 
@@ -168,7 +168,7 @@ class PopupCreateUpdateDelete extends Component
         // }
 
         if (isset($this->actions['id'])) {
-            $row = DB::table($this->actions['table'])
+            $row = DB::table($this->actions['table']['name'])
                 ->find($this->actions['id']);
             $this->setForm($row);
         }
@@ -194,7 +194,7 @@ class PopupCreateUpdateDelete extends Component
     public function update()
     {
         // step1. 수정전, 원본 데이터 읽기
-        $origin = DB::table($this->actions['table'])->find($this->actions['id']);
+        $origin = DB::table($this->actions['table']['name'])->find($this->actions['id']);
         foreach ($origin as $key => $value) {
             $this->forms_old[$key] = $value;
         }
@@ -222,7 +222,7 @@ class PopupCreateUpdateDelete extends Component
 
         // uploadfile 필드 조회
         /*
-        $fields = DB::table('uploadfile')->where('table', $this->actions['table'])->get();
+        $fields = DB::table('uploadfile')->where('table', $this->actions['table']['name'])->get();
         foreach($fields as $item) {
             $key = $item->field; // 업로드 필드명
             if($origin->$key != $this->forms[$key]) {
@@ -237,7 +237,7 @@ class PopupCreateUpdateDelete extends Component
         if($this->forms) {
             $this->forms['updated_at'] = date("Y-m-d H:i:s");
 
-            DB::table($this->actions['table'])
+            DB::table($this->actions['table']['name'])
                 ->where('id', $this->actions['id'])
                 ->update($this->forms);
         }
@@ -273,7 +273,7 @@ class PopupCreateUpdateDelete extends Component
     {
         $this->popupDelete = false;
 
-        $row = DB::table($this->actions['table'])
+        $row = DB::table($this->actions['table']['name'])
             ->find($this->actions['id']);
         $form = [];
         foreach($row as $key => $value) {
@@ -287,7 +287,7 @@ class PopupCreateUpdateDelete extends Component
 
         // uploadfile 필드 조회
         /*
-        $fields = DB::table('uploadfile')->where('table', $this->actions['table'])->get();
+        $fields = DB::table('uploadfile')->where('table', $this->actions['table']['name'])->get();
         foreach($fields as $item) {
             $key = $item->field; // 업로드 필드명
             if (isset($row->$key)) {
@@ -297,7 +297,7 @@ class PopupCreateUpdateDelete extends Component
         */
 
         // 데이터 삭제
-        DB::table($this->actions['table'])
+        DB::table($this->actions['table']['name'])
             ->where('id', $this->actions['id'])
             ->delete();
 

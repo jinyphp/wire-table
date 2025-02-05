@@ -5,12 +5,14 @@ namespace Jiny\WireTable\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 
 class BaseController extends Controller
 {
     // 리소스 저장경로
     const PATH = "actions";
     //protected $actions = [];
+    public $action_uri;
     public $actions = [];
 
     public function __construct()
@@ -21,6 +23,8 @@ class BaseController extends Controller
 
         ## 라우트정보
         $this->detectURI();
+
+
         $this->detectRouteName();
 
         // Actions 기본값 설정
@@ -44,6 +48,17 @@ class BaseController extends Controller
 
         // 수정기능 활성화
         $this->actions['edit']['enable'] = true;
+
+
+        // $auth = Auth::user();
+        // dd($auth);
+        // 회원정보 및 slot
+        $auth = Auth::user();
+        if($auth) {
+            //dump("auth init");
+            $user = user()->set($auth); // 싱글턴 객체
+            // Slot()->reload();
+        }
 
     }
 
@@ -95,11 +110,19 @@ class BaseController extends Controller
     }
 
 
-
+    /**
+     * uri 정보확인
+     */
     private function detectURI()
     {
         // 라우터에서 uri 정보 확인
         $uri = Route::current()->uri;
+
+
+
+
+
+
 
         // uri에서 {} 매개변수 제거
         $slug = explode('/', $uri);
@@ -155,13 +178,17 @@ class BaseController extends Controller
     private function readJsonAction($path)
     {
         $filename = $path.DIRECTORY_SEPARATOR;
-        //$filename .= str_replace("/","_",$this->actions['route']['uri']).".json";
         $uri = $this->actions['route']['uri'];
         $uri = rtrim($uri, '/');
         $uri = str_replace('/', DIRECTORY_SEPARATOR, $uri);
         $filename .= $uri.".json";
 
-        //dd($filename);
+
+        // $this->action_uri = preg_replace('/\{.*?\}/', '', $uri);
+        // $this->action_uri = rtrim($this->action_uri, '/');
+        // $path = resource_path("actions/".$this->action_uri);
+        // $path = str_replace('/', DIRECTORY_SEPARATOR, $path);
+        // $filename = $path.".json";
 
         if (file_exists($filename)) {
             $json = file_get_contents($filename);
@@ -198,6 +225,7 @@ class BaseController extends Controller
     ## 양방향 의존성 설정을 위한 컨트롤러 명 설정
     protected function setVisit($obj)
     {
+
         if ($obj && is_object($obj)) {
             $this->actions['controller'] = $obj::class;
             self::$Instance = $obj;

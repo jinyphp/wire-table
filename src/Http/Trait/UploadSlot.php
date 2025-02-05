@@ -78,13 +78,19 @@ trait UploadSlot
                         $sourcePath = storage_path('app'.$filename);
                         $destinationPath = $this->resourcePath();
 
+                        $destinationPath = str_replace("\\/", DIRECTORY_SEPARATOR, $destinationPath);
+                        $destinationPath = str_replace("/", DIRECTORY_SEPARATOR, $destinationPath);
                         //dd($destinationPath);
+
                         if(!is_dir($destinationPath)) {
                             mkdir($destinationPath,0777,true);
                         }
 
                         //dump($destinationPath);
                         //dump($this->upload_move);
+
+                        // 파일명만 추출
+                        $filename = '/'.basename($filename);
 
                         if (rename($sourcePath, $destinationPath.$filename)) {
                             $filename = rtrim($this->upload_move,'/').$filename;

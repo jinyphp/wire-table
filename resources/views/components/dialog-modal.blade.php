@@ -16,7 +16,9 @@
     </div>
 
     {{-- <div class="flex flex-row justify-end px-6 py-4 bg-gray-100 text-end"> --}}
+    @if(isset($footer) && $footer)
     <div class="px-4 py-3 bg-gray-100">
         {{ $footer }}
     </div>
+    @endif
 </x-modal>

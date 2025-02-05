@@ -1,5 +1,50 @@
 @props(['id', 'maxWidth'])
 
+<style>
+.sm\:max-w-sm {
+    max-width: 24rem;
+}
+
+.sm\:max-w-md {
+    max-width: 28rem;
+}
+
+.sm\:max-w-lg {
+    max-width: 32rem;
+}
+
+.sm\:max-w-xl {
+    max-width: 36rem;
+}
+
+.sm\:max-w-2xl {
+    max-width: 42rem;
+}
+
+.max-w-3xl {
+    max-width: 48rem;
+}
+
+.max-w-4xl {
+    max-width: 56rem;
+}
+
+.max-w-5xl {
+    max-width: 64rem;
+}
+
+.max-w-6xl {
+    max-width: 72rem;
+}
+
+.max-w-7xl {
+    max-width: 80rem;
+}
+
+.max-w-full {
+    max-width: 100%;
+}
+</style>
 @php
 $id = $id ?? md5($attributes->wire('model'));
 

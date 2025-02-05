@@ -75,7 +75,7 @@
 
 
     <!-- 팝업 데이터 수정창 -->
-    @if ($popupForm)
+    @if($popupForm)
         @includeIf("jiny-wire-table::table_popup_forms.popup_forms")
     @endif
 

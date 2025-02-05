@@ -54,8 +54,8 @@ class WireTablePopupForm extends Component
 
         // 테이블 컬럼 정보읽기
         /*
-        if(isset($this->actions['table']) && $this->actions['table']) {
-            $columns = DB::select("SHOW COLUMNS FROM ".$this->actions['table']);
+        if(isset($this->actions['table']['name']) && $this->actions['table']['name']) {
+            $columns = DB::select("SHOW COLUMNS FROM ".$this->actions['table']['name']);
             foreach ($columns as $column) {
                 $this->table_columns []= $column;
                 //echo "Column: $column->Field, Type: $column->Type\n";
@@ -78,10 +78,12 @@ class WireTablePopupForm extends Component
      */
     public function render()
     {
+        //dd('render');
+
         // 1. 데이터 테이블 체크
-        if(isset($this->actions['table'])) {
-            if($this->actions['table']) {
-                $this->setTable($this->actions['table']);
+        if(isset($this->actions['table']['name'])) {
+            if($this->actions['table']['name']) {
+                $this->setTable($this->actions['table']['name']);
             }
         } else {
             // 테이블명이 없는 경우
@@ -246,9 +248,11 @@ class WireTablePopupForm extends Component
 
             // 후킹:: 컨트롤러 메서드 호출
             if ($controller = $this->isHook("hookCreating")) {
-                $form = $this->controller->hookCreating($this, $value);
-                if($form) {
-                    $this->forms = $form;
+                $forms = $this->controller->hookCreating($this, $value);
+                //dump("hook");
+                //dd($form);
+                if($forms) {
+                    $this->forms = $forms;
                 }
             }
 
@@ -300,7 +304,7 @@ class WireTablePopupForm extends Component
             // 5. 데이터 삽입
             if($form) {
                 //dd($form);
-                $id = DB::table($this->actions['table'])->insertGetId($form);
+                $id = DB::table($this->actions['table']['name'])->insertGetId($form);
                 $form['id'] = $id;
                 $this->last_id = $id;
 
@@ -328,17 +332,20 @@ class WireTablePopupForm extends Component
 
     public function edit($id)
     {
+
+        $this->popupForm = true;
+        $this->confirm = false;
+        // dump($this->popupForm);
+        // dd($id);
+
         // 수정기능이 비활성화 되어 있는지 확인
-        if(!isset($this->actions['edit']['enable'])) {
-            return false;
-        } else {
-            if(!$this->actions['edit']['enable']) {
-                return false;
-            }
-        }
-
-
-
+        // if(!isset($this->actions['edit']['enable'])) {
+        //     return false;
+        // } else {
+        //     if(!$this->actions['edit']['enable']) {
+        //         return false;
+        //     }
+        // }
 
         $this->message = null;
 
@@ -346,6 +353,7 @@ class WireTablePopupForm extends Component
             $this->popupFormOpen();
 
             if($id) {
+                //dd($id);
                 $this->actions['id'] = $id;
             }
 
@@ -355,7 +363,7 @@ class WireTablePopupForm extends Component
             }
 
             if (isset($this->actions['id'])) {
-                $row = DB::table($this->actions['table'])->find($this->actions['id']);
+                $row = DB::table($this->actions['table']['name'])->find($this->actions['id']);
                 $this->setForm($row);
             }
 
@@ -363,6 +371,8 @@ class WireTablePopupForm extends Component
             if ($controller = $this->isHook("hookEdited")) {
                 $this->forms = $this->controller->hookEdited($this, $this->forms, $this->forms);
             }
+
+            //dd($this->forms);
 
         } else {
             $this->popupPermitOpen();
@@ -398,7 +408,7 @@ class WireTablePopupForm extends Component
     {
         if($this->permit['update']) {
             // step1. 수정전, 원본 데이터 읽기
-            $origin = DB::table($this->actions['table'])->find($this->actions['id']);
+            $origin = DB::table($this->actions['table']['name'])->find($this->actions['id']);
             foreach ($origin as $key => $value) {
                 $this->forms_old[$key] = $value;
             }
@@ -426,7 +436,7 @@ class WireTablePopupForm extends Component
 
             // uploadfile 필드 조회
             /*
-            $fields = DB::table('uploadfile')->where('table', $this->actions['table'])->get();
+            $fields = DB::table('uploadfile')->where('table', $this->actions['table']['name'])->get();
             foreach($fields as $item) {
                 $key = $item->field; // 업로드 필드명
                 if($origin->$key != $this->forms[$key]) {
@@ -442,7 +452,7 @@ class WireTablePopupForm extends Component
                 //dd($this->forms);
                 $this->forms['updated_at'] = date("Y-m-d H:i:s");
 
-                DB::table($this->actions['table'])
+                DB::table($this->actions['table']['name'])
                     ->where('id', $this->actions['id'])
                     ->update($this->forms);
             }
@@ -485,7 +495,7 @@ class WireTablePopupForm extends Component
         $this->popupDelete = false;
 
         if($this->permit['delete']) {
-            $row = DB::table($this->actions['table'])->find($this->actions['id']);
+            $row = DB::table($this->actions['table']['name'])->find($this->actions['id']);
             $form = [];
             foreach($row as $key => $value) {
                 $form[$key] = $value;
@@ -498,7 +508,7 @@ class WireTablePopupForm extends Component
 
             // uploadfile 필드 조회
             /*
-            $fields = DB::table('uploadfile')->where('table', $this->actions['table'])->get();
+            $fields = DB::table('uploadfile')->where('table', $this->actions['table']['name'])->get();
             foreach($fields as $item) {
                 $key = $item->field; // 업로드 필드명
                 if (isset($row->$key)) {
@@ -508,7 +518,7 @@ class WireTablePopupForm extends Component
             */
 
             // 데이터 삭제
-            DB::table($this->actions['table'])
+            DB::table($this->actions['table']['name'])
                 ->where('id', $this->actions['id'])
                 ->delete();
 
@@ -541,7 +551,10 @@ class WireTablePopupForm extends Component
     /**
      * 컨트롤러에서 선안한 메소드를 호출
      */
-    public function hook($method, ...$args) { $this->call($method, $args); }
+    public function hook($method, ...$args) {
+        //dd($method);
+        $this->call($method, $args);
+    }
     public function call($method, ...$args)
     {
         //dd($method);

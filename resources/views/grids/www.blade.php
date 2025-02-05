@@ -1,11 +1,13 @@
-<x-www-layout>
+<x-www-app>
+    <x-www-layout>
 
-    <section class="py-5">
-        <div class="container px-5">
+        <section class="py-5">
+            <div class="container px-5">
 
-            @includeIf("jiny-wire-table::grids.layout")
+                @includeIf("jiny-wire-table::grids.layout")
 
-        </div>
-    </section>
+            </div>
+        </section>
 
-</x-www-layout>
+    </x-www-layout>
+</x-www-app>

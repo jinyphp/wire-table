@@ -67,9 +67,9 @@ class WireShowController extends LiveController
 
                 // 상세정보는 테이블의 특정 rows의
                 // 선택된 id를 조회하여 데이터를 출력합니다.
-                if(isset($this->actions['table'])) {
+                if(isset($this->actions['table']['name'])) {
                     if(isset($request->id)) {
-                        $row = DB::table($this->actions['table'])
+                        $row = DB::table($this->actions['table']['name'])
                             ->where('id', $request->id)
                             ->first();
                         $_data['row'] = $row;
